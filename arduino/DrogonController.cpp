@@ -1,5 +1,5 @@
 /*
- * DrogonController.h
+ * DrogonController.cpp
  * 
  * This file is part of Drogon.
  *
