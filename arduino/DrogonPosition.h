@@ -32,9 +32,9 @@
 #define ACCEL_SCALE (1/6.2)
 
 #define INIT_VAR_SQ 4
-#define ACCEL_VAR_SQ 1.96
-#define GYRO_VAR_SQ 1.96
-#define VAR_UPDATE_SCALE 2.0
+#define ACCEL_VAR_SQ 0.64
+#define GYRO_VAR_SQ 0.25
+#define VAR_UPDATE_SCALE 3.0
 
 class DrogonPosition {
 	public:
@@ -50,6 +50,7 @@ class DrogonPosition {
 		
 		double xVarSq;
 		double yVarSq;
+		double sensorVarSq;
 };
 
 #endif
