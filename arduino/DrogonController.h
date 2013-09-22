@@ -53,13 +53,13 @@
 
 class DrogonController {
     public:
-        DrogonController( void );
+        DrogonController( DrogonPosition *_position );
         
         void control_update( long micros );
         
         void update_thetas( double kp, double ki, double kd );
         
-		DrogonPosition position;
+        DrogonPosition* get_position();
         
         double motorAdjusts[NUM_MOTORS];
 		
@@ -79,6 +79,8 @@ class DrogonController {
         void map_angles_to_motor_offsets( void );
         void rot_matrix_mult( const double* a, const double* b, double* dst );
         
+		DrogonPosition* position;
+
         double thetas[NUM_FEATURES];
         
         bool controlStart;

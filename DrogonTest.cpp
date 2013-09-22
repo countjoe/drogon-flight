@@ -27,21 +27,22 @@ using namespace std;
 
 #include <sys/time.h>
 
-DrogonController dc;
+DrogonPosition position;
+DrogonController dc(&position);
 
 extern "C" {
 	void set_position( double x, double y ) {
-		dc.position.x = x;
-		dc.position.y = y;
+		position.x = x;
+		position.y = y;
 	}
 	void position_update( long micros, double accelValues[3], double gyroValues[3] ) {
-		dc.position.update( micros, accelValues, gyroValues );
+		position.update( micros, accelValues, gyroValues );
 	}
 	double get_position_x(void) {
-		return dc.position.x;
+		return position.x;
 	}
 	double get_position_y(void) {
-		return dc.position.y;
+		return position.y;
 	}
 	void control_update(long micros) {
 		dc.control_update(micros);

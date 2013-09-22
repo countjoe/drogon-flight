@@ -26,10 +26,17 @@ DrogonPosition::DrogonPosition(void) {
 	x = 0.0;	
 	y = 0.0;
 	
-	xVarSq = INIT_VAR_SQ;
-	yVarSq = INIT_VAR_SQ;
+	velocityX = 0.0;
+	velocityY = 0.0;
+	
+	varSqX = INIT_VAR_SQ;
+	varSqY = INIT_VAR_SQ;
 	
 	sensorVarSq = calc_var( ACCEL_VAR_SQ, GYRO_VAR_SQ );
+	
+	velocityVarSq = INIT_VEL_VAR_SQ;
+	
+	lastMicros = 0;
 }
 
 void DrogonPosition::update( long micros, const double accelValues[3], const double gyroValues[3] ) {
@@ -39,17 +46,42 @@ void DrogonPosition::update( long micros, const double accelValues[3], const dou
 	double gyroX = x + gyroValues[0];
 	double gyroY = y + gyroValues[1];
 	
+	double lastX = x;
+	double lastY = y;
+	
 	double sensorX = calc_mean( accelX, ACCEL_VAR_SQ, gyroX, GYRO_VAR_SQ );
 	double sensorY = calc_mean( accelY, ACCEL_VAR_SQ, gyroY, GYRO_VAR_SQ );
 	
-	x = calc_mean( x, xVarSq, sensorX, sensorVarSq );
-	y = calc_mean( y, yVarSq, sensorY, sensorVarSq );
+	double elapsedSeconds = 0.0;
 	
-	xVarSq = calc_var( xVarSq, sensorVarSq );
-	yVarSq = calc_var( yVarSq, sensorVarSq );
+	if ( lastMicros > 0 ) {
+		elapsedSeconds = ( micros - lastMicros ) / 1000000.0;
+	}
 	
-	xVarSq *= VAR_UPDATE_SCALE;
-	yVarSq *= VAR_UPDATE_SCALE;
+	if ( elapsedSeconds > 0.0 ) {
+		x += ( velocityX * elapsedSeconds );
+		y += ( velocityY * elapsedSeconds );
+	}
+	
+	x = calc_mean( x, varSqX, sensorX, sensorVarSq );
+	y = calc_mean( y, varSqY, sensorY, sensorVarSq );
+	
+	varSqX = calc_var( varSqX, sensorVarSq );
+	varSqY = calc_var( varSqY, sensorVarSq );
+	
+	varSqX *= VAR_UPDATE_SCALE;
+	varSqY *= VAR_UPDATE_SCALE;
+	
+	if ( elapsedSeconds > 0.0 ) {
+		velocityX = calc_mean( velocityX, velocityVarSq, ( x - lastX ) / elapsedSeconds, VEL_VAR_SQ );
+		velocityY = calc_mean( velocityX, velocityVarSq, ( y - lastY ) / elapsedSeconds, VEL_VAR_SQ );
+		
+		velocityVarSq = calc_var( velocityVarSq, VEL_VAR_SQ );
+		
+		velocityVarSq *= VAR_UPDATE_SCALE;
+	}
+	
+	lastMicros = micros;
 }
 
 double DrogonPosition::calc_mean( double mean1, double var1, double mean2, double var2 ) {

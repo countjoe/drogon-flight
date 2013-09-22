@@ -32,9 +32,11 @@
 #define ACCEL_SCALE (1/6.2)
 
 #define INIT_VAR_SQ 4
-#define ACCEL_VAR_SQ 0.64
-#define GYRO_VAR_SQ 0.25
-#define VAR_UPDATE_SCALE 3.0
+#define INIT_VEL_VAR_SQ 1
+#define ACCEL_VAR_SQ 1.96
+#define GYRO_VAR_SQ 0.64
+#define VAR_UPDATE_SCALE 1.5
+#define VEL_VAR_SQ 0.25
 
 class DrogonPosition {
 	public:
@@ -44,13 +46,19 @@ class DrogonPosition {
 		
 		double x;
 		double y;
+		
+		double velocityX;
+		double velocityY;
 	private:
 		double calc_mean( double mean1, double var1, double mean2, double var2 );
 		double calc_var( double var1, double var2 );
 		
-		double xVarSq;
-		double yVarSq;
+		double varSqX;
+		double varSqY;
 		double sensorVarSq;
+		double velocityVarSq;
+		
+		long lastMicros;
 };
 
 #endif
