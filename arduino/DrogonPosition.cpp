@@ -29,59 +29,110 @@ DrogonPosition::DrogonPosition(void) {
 	velocityX = 0.0;
 	velocityY = 0.0;
 	
-	varSqX = INIT_VAR_SQ;
-	varSqY = INIT_VAR_SQ;
+	varSq = INIT_START_VAR_SQ;
 	
-	sensorVarSq = calc_var( ACCEL_VAR_SQ, GYRO_VAR_SQ );
+	accelVarSq = INIT_ACCEL_VAR_SQ;
+	gyroVarSq = INIT_GYRO_VAR_SQ;
+	varUpdateScale = INIT_VAR_UPDATE_SCALE;
+	velPosUpdateVarSq = INIT_VEL_POS_UPDATE_VAR_SQ;
+	velVarSq = INIT_VEL_VAR_SQ;
+
+	sensorVarSq = calc_var( accelVarSq, gyroVarSq );
 	
-	velocityVarSq = INIT_VEL_VAR_SQ;
+	velocityVarSq = INIT_START_VEL_VAR_SQ;
 	
 	lastMicros = 0;
 }
 
 void DrogonPosition::update( long micros, const double accelValues[3], const double gyroValues[3] ) {
-	double accelX = (-accelValues[1]*ACCEL_SCALE);
-	double accelY = (accelValues[0]*ACCEL_SCALE);
+    if ( lastMicros == 0 || lastMicros >= micros ) {
+        // sit this one out
+        lastMicros = micros;
+        return;
+    }
+
+    double elapsedSeconds = ( micros - lastMicros ) / 1000000.0;
+
+	double accelX = (-accelValues[1]*ACCEL_SCALE); // translate to robot coords
+	double accelY = (accelValues[0]*ACCEL_SCALE);  // translate to robot coords
 	
-	double gyroX = x + gyroValues[0];
-	double gyroY = y + gyroValues[1];
+	// gyroscope is degrees/second, so gyroscope estimated position is:
+	double gyroX = x + ( gyroValues[0] * elapsedSeconds );
+	double gyroY = y + ( gyroValues[1] * elapsedSeconds );
 	
 	double lastX = x;
 	double lastY = y;
 	
-	double sensorX = calc_mean( accelX, ACCEL_VAR_SQ, gyroX, GYRO_VAR_SQ );
-	double sensorY = calc_mean( accelY, ACCEL_VAR_SQ, gyroY, GYRO_VAR_SQ );
+	double sensorX = calc_mean( accelX, accelVarSq, gyroX, gyroVarSq );
+	double sensorY = calc_mean( accelY, accelVarSq, gyroY, gyroVarSq );
 	
-	double elapsedSeconds = 0.0;
+	// update current position with velocity
+	x = calc_mean( x, varSq, x + ( velocityX * elapsedSeconds ), velPosUpdateVarSq );
+    y = calc_mean( y, varSq, y + ( velocityY * elapsedSeconds ), velPosUpdateVarSq );
 	
-	if ( lastMicros > 0 ) {
-		elapsedSeconds = ( micros - lastMicros ) / 1000000.0;
-	}
+    // don't update position variance, don't want to increase
+    //varSqX = calc_var( varSqX, VEL_POS_UPDATE_VAR_SQ );
+    //varSqY = calc_var( varSqY, VEL_POS_UPDATE_VAR_SQ );
+
+    // apply sensor position to current position
+	x = calc_mean( x, varSq, sensorX, sensorVarSq );
+	y = calc_mean( y, varSq, sensorY, sensorVarSq );
 	
-	if ( elapsedSeconds > 0.0 ) {
-		x += ( velocityX * elapsedSeconds );
-		y += ( velocityY * elapsedSeconds );
-	}
+	varSq = calc_var( varSq, sensorVarSq );
 	
-	x = calc_mean( x, varSqX, sensorX, sensorVarSq );
-	y = calc_mean( y, varSqY, sensorY, sensorVarSq );
-	
-	varSqX = calc_var( varSqX, sensorVarSq );
-	varSqY = calc_var( varSqY, sensorVarSq );
-	
-	varSqX *= VAR_UPDATE_SCALE;
-	varSqY *= VAR_UPDATE_SCALE;
+	varSq *= varUpdateScale;
 	
 	if ( elapsedSeconds > 0.0 ) {
-		velocityX = calc_mean( velocityX, velocityVarSq, ( x - lastX ) / elapsedSeconds, VEL_VAR_SQ );
-		velocityY = calc_mean( velocityX, velocityVarSq, ( y - lastY ) / elapsedSeconds, VEL_VAR_SQ );
+		velocityX = calc_mean( velocityX, velocityVarSq, ( x - lastX ) / elapsedSeconds, velVarSq );
+		velocityY = calc_mean( velocityY, velocityVarSq, ( y - lastY ) / elapsedSeconds, velVarSq );
 		
-		velocityVarSq = calc_var( velocityVarSq, VEL_VAR_SQ );
+		velocityVarSq = calc_var( velocityVarSq, velVarSq );
 		
-		velocityVarSq *= VAR_UPDATE_SCALE;
+		velocityVarSq *= varUpdateScale;
 	}
 	
 	lastMicros = micros;
+}
+
+void DrogonPosition::set_accel_var_sq( double accelVarSq ) {
+    this->accelVarSq = accelVarSq;
+    sensorVarSq = calc_var( accelVarSq, gyroVarSq );
+}
+double DrogonPosition::get_accel_var_sq( void ) {
+    return accelVarSq;
+}
+
+void DrogonPosition::set_gyro_var_sq( double gyroVarSq ) {
+    this->gyroVarSq = gyroVarSq;
+    sensorVarSq = calc_var( accelVarSq, gyroVarSq );
+}
+
+double DrogonPosition::get_gyro_var_sq( void ) {
+    return gyroVarSq;
+}
+
+void DrogonPosition::set_variance_update_scale( double varUpdateScale ) {
+    this->varUpdateScale = varUpdateScale;
+}
+
+double DrogonPosition::get_variance_update_scale( void ) {
+    return varUpdateScale;
+}
+
+void DrogonPosition::set_velocity_position_update_var_sq( double velPosUpdateVarSq ) {
+    this->velPosUpdateVarSq = velPosUpdateVarSq;
+}
+
+double DrogonPosition::get_velocity_position_update_var_sq( void ) {
+    return velPosUpdateVarSq;
+}
+
+void DrogonPosition::set_velocity_var_sq( double velVarSq ) {
+    this->velVarSq = velVarSq;
+}
+
+double DrogonPosition::get_velocity_var_sq( void ) {
+    return velVarSq;
 }
 
 double DrogonPosition::calc_mean( double mean1, double var1, double mean2, double var2 ) {

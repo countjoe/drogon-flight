@@ -31,12 +31,13 @@
 
 #define ACCEL_SCALE (1/6.2)
 
-#define INIT_VAR_SQ 4
-#define INIT_VEL_VAR_SQ 1
-#define ACCEL_VAR_SQ 1.96
-#define GYRO_VAR_SQ 0.64
-#define VAR_UPDATE_SCALE 1.5
-#define VEL_VAR_SQ 0.25
+#define INIT_START_VAR_SQ 4
+#define INIT_START_VEL_VAR_SQ 1
+#define INIT_ACCEL_VAR_SQ 1.96
+#define INIT_GYRO_VAR_SQ 0.64
+#define INIT_VAR_UPDATE_SCALE 1.5
+#define INIT_VEL_POS_UPDATE_VAR_SQ 2.25
+#define INIT_VEL_VAR_SQ 0.25
 
 class DrogonPosition {
 	public:
@@ -44,6 +45,21 @@ class DrogonPosition {
 		
 		void update( long micros, const double accelValues[3], const double gyroValues[3] );
 		
+		void set_accel_var_sq( double accelVarSq );
+		double get_accel_var_sq( void );
+
+        void set_gyro_var_sq( double gyroVarSq );
+        double get_gyro_var_sq( void );
+
+        void set_variance_update_scale( double varUpdateScale );
+        double get_variance_update_scale( void );
+
+        void set_velocity_position_update_var_sq( double velPosUpdateVarSq );
+        double get_velocity_position_update_var_sq( void );
+
+        void set_velocity_var_sq( double velVarSq );
+        double get_velocity_var_sq( void );
+
 		double x;
 		double y;
 		
@@ -53,12 +69,17 @@ class DrogonPosition {
 		double calc_mean( double mean1, double var1, double mean2, double var2 );
 		double calc_var( double var1, double var2 );
 		
-		double varSqX;
-		double varSqY;
+		double varSq;
 		double sensorVarSq;
 		double velocityVarSq;
 		
 		long lastMicros;
+
+		double accelVarSq;
+		double gyroVarSq;
+		double varUpdateScale;
+		double velPosUpdateVarSq;
+		double velVarSq;
 };
 
 #endif
