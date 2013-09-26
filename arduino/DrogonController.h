@@ -40,11 +40,11 @@
 
 #define NUM_FEATURES 3
 
-#define THETAS_KP 0.25
-#define THETAS_KI 0.2
-#define THETAS_KD 0.05
+#define THETAS_KP 0.05
+#define THETAS_KI 0.002
+#define THETAS_KD 0.001
 
-#define MAX_ERR_TOTAL 40
+#define MAX_ERR_TOTAL 5
 #define MIN_ERR_TOTAL -MAX_ERR_TOTAL
 
 #define ARM_LENGTH 300
