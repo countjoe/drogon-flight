@@ -22,11 +22,14 @@
 
 #include "DrogonController.h"
 
-DrogonController::DrogonController( DrogonPosition *_position ) {
-    thetas[0] = THETAS_KP;
-    thetas[1] = THETAS_KI;
-    thetas[2] = THETAS_KD;
-    
+#include "DrogonConstants.h"
+
+DrogonController::DrogonController( DrogonPosition *_position ) :
+                pidAbsoluteA(ABSOLUTE_KP, ABSOLUTE_KI, ABSOLUTE_KD),
+                pidAbsoluteB(ABSOLUTE_KP, ABSOLUTE_KI, ABSOLUTE_KD),
+                pidAccumA(ACCUM_KP, ACCUM_KI, ACCUM_KD),
+                pidAccumB(ACCUM_KP, ACCUM_KI, ACCUM_KD) {
+
     motorAOffsetMatrix[0] = cos(ARM_ANGLE_A);
     motorAOffsetMatrix[1] = -sin(ARM_ANGLE_A);
     motorAOffsetMatrix[2] = 0;
@@ -58,25 +61,17 @@ DrogonController::DrogonController( DrogonPosition *_position ) {
     controlStart = false;
 }
 
-void DrogonController::zero_motor_values( long micros ) {
-    for ( int i = 0; i < NUM_FEATURES; i++ ) {
-        featuresA[i] = 0.0;
-        featuresB[i] = 0.0;
-    }
+void DrogonController::zero_motor_values( unsigned long micros ) {
+    pidAbsoluteA.reset( micros );
+    pidAbsoluteB.reset( micros );
+    pidAccumA.reset( micros );
+    pidAccumB.reset( micros );
     
     motorOffsetA = 0.0;
     motorOffsetB = 0.0;
 
-    lastErrUpdate = micros;
-
-    errTotalA = 0.0;
-    errTotalB = 0.0;
-
-    errLastA = 0.0;
-    errLastB = 0.0;
-
-    errA = 0.0;
-    errB = 0.0;
+    errAccumA = 0.0;
+    errAccumB = 0.0;
 
     motorAdjusts[0] = 0.0;
     motorAdjusts[1] = 0.0;
@@ -84,69 +79,32 @@ void DrogonController::zero_motor_values( long micros ) {
     motorAdjusts[3] = 0.0;
 }
 
-void DrogonController::control_update( long micros ) {
+void DrogonController::control_update( unsigned long micros, const double target[3] ) {
     if ( !controlStart ) {
         zero_motor_values( micros );
         controlStart = true;
     } else {
-        update_motor_values( micros );
+        update_motor_values( micros, target );
     }
 }
 
-void DrogonController::update_motor_values( long micros ) {
-    map_angles_to_motor_offsets();
+void DrogonController::update_motor_values( unsigned long micros, const double target[3] ) {
+    map_angles_to_motor_offsets( target[0], target[1] );
 
-    calc_errs( micros );
+    errAccumA += pidAccumA.update( micros, motorOffsetA );
+    errAccumB += pidAccumB.update( micros, motorOffsetB );
+
+    double errA = pidAbsoluteA.update( micros, motorOffsetA );
+    double errB = pidAbsoluteB.update( micros, motorOffsetB );
+
+    errA += errAccumA;
+    errB += errAccumB;
 
     motorAdjusts[0] = -errA;
     motorAdjusts[2] =  errA;
 
     motorAdjusts[1] =  errB;
     motorAdjusts[3] = -errB;
-}
-
-/*
- * Calculate errors using PID algorithm from motor offsets (distance to center)
- */
-void DrogonController::calc_errs( long micros ) {
-    double rawErrA = motorOffsetA;
-    double rawErrB = motorOffsetB;
-
-    // calculate elapsed time since last error update in seconds
-    double elapsed = ( micros - lastErrUpdate ) / 1000000.0;
-
-    errTotalA += ( ( errLastA + ( ( rawErrA - errLastA ) / 2.0 ) ) * elapsed );
-    errTotalB += ( ( errLastB + ( ( rawErrB - errLastB ) / 2.0 ) ) * elapsed );
-
-    // bound err total to min/max to prevent overrunning
-    errTotalA = max( MIN_ERR_TOTAL, min( MAX_ERR_TOTAL, errTotalA ) );
-    errTotalB = max( MIN_ERR_TOTAL, min( MAX_ERR_TOTAL, errTotalB ) );
-
-    // err diff is change in degrees in seconds from last update
-    double errDiffA = ( rawErrA - errLastA ) / elapsed;
-    double errDiffB = ( rawErrB - errLastB ) / elapsed;
-
-    // setup features (PID values) for motor A
-    featuresA[0] = rawErrA;     // P component, raw error offset
-    featuresA[1] = errTotalA;   // I component, total error
-    featuresA[2] = errDiffA;    // D component, rate of change of error
-
-    // setup features (PID values) for motor B
-    featuresB[0] = rawErrB;     // P component, raw error offset
-    featuresB[1] = errTotalB;   // I component, total error
-    featuresB[2] = errDiffB;    // D component, rate of change of error
-
-    // compute PID function by multiplying feature vector with
-    // thetas vecor (PID constants)
-    errA = array_mult( featuresA, thetas, NUM_FEATURES );
-    errB = array_mult( featuresB, thetas, NUM_FEATURES );
-
-    // store last error values
-    errLastA = rawErrA;
-    errLastB = rawErrB;
-
-    // store time of this update
-    lastErrUpdate = micros;
 }
 
 DrogonPosition* DrogonController::get_position() {
@@ -168,7 +126,7 @@ double DrogonController::array_mult( const double* a, const double* b, int len )
 /*
  * Map angle to motor offsets.
  */
-void DrogonController::map_angles_to_motor_offsets( void ) {
+void DrogonController::map_angles_to_motor_offsets( double targetX, double targetY ) {
     double rot1[3];
     double rot2[3];
     double rot3[3];
@@ -177,8 +135,8 @@ void DrogonController::map_angles_to_motor_offsets( void ) {
     double zB;
 
     // convert angle in degrees to radians for trig functions
-    double angleXRadians = position->x * PI / 180.0;
-    double angleYRadians = position->y * PI / 180.0;
+    double angleXRadians = (position->x - targetX) * PI / 180.0;
+    double angleYRadians = (position->y - targetY) * PI / 180.0;
 
     // compute sines/cosines for rotation matrices
     double sinAngleX = sin(angleXRadians);
@@ -251,10 +209,4 @@ void DrogonController::rot_matrix_mult( const double* a, const double* b, double
     }
 }
 
-
-void DrogonController::update_thetas( double kp, double ki, double kd ) {
-    thetas[0] = kp;
-    thetas[1] = ki;
-    thetas[2] = kd;
-}
 

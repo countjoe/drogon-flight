@@ -30,6 +30,8 @@ using namespace std;
 DrogonPosition position;
 DrogonController dc(&position);
 
+double zeroPosition[] = { 0.0, 0.0, 0.0 };
+
 extern "C" {
 	void set_position( double x, double y ) {
 		position.x = x;
@@ -44,26 +46,38 @@ extern "C" {
 	double get_position_y(void) {
 		return position.y;
 	}
-	void control_update(long micros) {
-		dc.control_update(micros);
+	void control_update(unsigned long micros) {
+		dc.control_update(micros, zeroPosition);
 	}
 	void update_thetas( double kp, double ki, double kd ) {
-		dc.update_thetas( kp, ki, kd );
+		dc.pidAbsoluteA.set_thetas( kp, ki, kd );
 	}
 	double get_motor_adjust(int idx) {	
 		return dc.motorAdjusts[idx];
 	}
-	double get_feature_a(int idx) {	
-		return dc.featuresA[idx];
+	double get_pid_a_error_p(void) {
+		return dc.pidAbsoluteA.ep;
 	}
-	double get_feature_b(int idx) {	
-		return dc.featuresB[idx];
-	}
+    double get_pid_a_error_i(void) {
+        return dc.pidAbsoluteA.ei;
+    }
+    double get_pid_a_error_d(void) {
+        return dc.pidAbsoluteA.ep;
+    }
+    double get_pid_b_error_p(void) {
+        return dc.pidAbsoluteB.ep;
+    }
+    double get_pid_b_error_i(void) {
+        return dc.pidAbsoluteB.ei;
+    }
+    double get_pid_b_error_d(void) {
+        return dc.pidAbsoluteB.ep;
+    }
 	double get_err_a(void) {
-		return dc.errA;
+		return dc.pidAbsoluteA.error;
 	}
 	double get_err_b(void) {
-		return dc.errB;
+		return dc.pidAbsoluteB.error;
 	}
 	double get_motor_offset_a(void) {
 		return dc.motorOffsetA;

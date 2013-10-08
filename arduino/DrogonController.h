@@ -25,72 +25,39 @@
 
 #include "DrogonPosition.h"
 
-#include <math.h>
-
-#ifndef PI
-#define PI M_PI
-#endif
-
-#ifndef max
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
-#define NUM_MOTORS 4
-
-#define NUM_FEATURES 3
-
-#define THETAS_KP 0.05
-#define THETAS_KI 0.002
-#define THETAS_KD 0.001
-
-#define MAX_ERR_TOTAL 5
-#define MIN_ERR_TOTAL -MAX_ERR_TOTAL
-
-#define ARM_LENGTH 300
-#define ARM_ANGLE_A (45.0 * PI / 180.0)
-#define ARM_ANGLE_B ((90.0+45.0) * PI / 180.0)
+#include "DrogonPid.h"
 
 class DrogonController {
     public:
         DrogonController( DrogonPosition *_position );
         
-        void control_update( long micros );
-        
-        void update_thetas( double kp, double ki, double kd );
+        void control_update( unsigned long micros, const double target[3] );
         
         DrogonPosition* get_position();
         
-        double motorAdjusts[NUM_MOTORS];
+        double motorAdjusts[4];
 		
         double motorOffsetA;
         double motorOffsetB;
         
-		double featuresA[NUM_FEATURES];
-		double featuresB[NUM_FEATURES];
-        
-        double errA;
-        double errB;
+        DrogonPid pidAbsoluteA;
+        DrogonPid pidAbsoluteB;
+        DrogonPid pidAccumA;
+        DrogonPid pidAccumB;
     private:
-        void zero_motor_values( long micros );
-        void update_motor_values( long micros );
-        void calc_errs( long micros );
+        void zero_motor_values( unsigned long micros );
+        void update_motor_values( unsigned long micros, const double target[3] );
         double array_mult( const double* a, const double* b, int len );
-        void map_angles_to_motor_offsets( void );
+        void map_angles_to_motor_offsets( double targetX, double targetY );
         void rot_matrix_mult( const double* a, const double* b, double* dst );
         
 		DrogonPosition* position;
-
-        double thetas[NUM_FEATURES];
         
         bool controlStart;
-        long lastErrUpdate;
-        double errTotalA;
-        double errTotalB;
-
-        double errLastA;
-        double errLastB;
         
+        double errAccumA;
+        double errAccumB;
+
         double motorAOffsetMatrix[3*3];
         double motorBOffsetMatrix[3*3];
         double motorOffsetVector[3];

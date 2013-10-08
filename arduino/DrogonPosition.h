@@ -23,27 +23,11 @@
 #ifndef __DROGON_POSITION_H__
 #define __DROGON_POSITION_H__
 
-#include <math.h>
-
-#ifndef PI
-#define PI M_PI
-#endif
-
-#define ACCEL_SCALE (1/6.2)
-
-#define INIT_START_VAR_SQ 4
-#define INIT_START_VEL_VAR_SQ 1
-#define INIT_ACCEL_VAR_SQ 1.96
-#define INIT_GYRO_VAR_SQ 0.64
-#define INIT_VAR_UPDATE_SCALE 1.5
-#define INIT_VEL_POS_UPDATE_VAR_SQ 2.25
-#define INIT_VEL_VAR_SQ 0.25
-
 class DrogonPosition {
 	public:
 		DrogonPosition(void);
 		
-		void update( long micros, const double accelValues[3], const double gyroValues[3] );
+		void update( unsigned long micros, const double accelValues[3], const double gyroValues[3] );
 		
 		void set_accel_var_sq( double accelVarSq );
 		double get_accel_var_sq( void );
@@ -73,7 +57,7 @@ class DrogonPosition {
 		double sensorVarSq;
 		double velocityVarSq;
 		
-		long lastMicros;
+		unsigned long lastMicros;
 
 		double accelVarSq;
 		double gyroVarSq;

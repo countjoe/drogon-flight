@@ -1,4 +1,4 @@
-OBJS = arduino/DrogonPosition.o arduino/DrogonController.o DrogonTest.o
+OBJS = arduino/DrogonPid.o arduino/DrogonPosition.o arduino/DrogonController.o DrogonTest.o
 CC = g++
 DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG) -fPIC

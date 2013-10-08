@@ -22,6 +22,8 @@
 
 #include "DrogonPosition.h"
 
+#include "DrogonConstants.h"
+
 DrogonPosition::DrogonPosition(void) {
 	x = 0.0;	
 	y = 0.0;
@@ -44,7 +46,7 @@ DrogonPosition::DrogonPosition(void) {
 	lastMicros = 0;
 }
 
-void DrogonPosition::update( long micros, const double accelValues[3], const double gyroValues[3] ) {
+void DrogonPosition::update( unsigned long micros, const double accelValues[3], const double gyroValues[3] ) {
     if ( lastMicros == 0 || lastMicros >= micros ) {
         // sit this one out
         lastMicros = micros;

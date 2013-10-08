@@ -7,7 +7,7 @@ SONAME="./libdrogonflight.so"
 
 def debug_dc( millis, dc, KP, KI, KD ):
 	#print "t=%i\tx=%.4f\ty=%.4f\terrA=%.4f\terrB=%.4f\tadj=[%.4f %.4f %.4f %.4f]" % ( millis, dc.get_position_x(), dc.get_position_y(), dc.get_err_a(), dc.get_err_b(), dc.get_motor_adjust(c_int(0)), dc.get_motor_adjust(c_int(1)), dc.get_motor_adjust(c_int(2)), dc.get_motor_adjust(c_int(3)) )
-	print "t=%06i\tx=%.4f\ty=%.4f\toffA=%.4f\terrA=%.4f\tfeatA=[%.4f %.4f %.4f]\terrA=[%.4f %.4f %.4f]" % ( millis, dc.get_position_x(), dc.get_position_y(), dc.get_motor_offset_a(), dc.get_err_a(), dc.get_feature_a(c_int(0)), dc.get_feature_a(c_int(1)), dc.get_feature_a(c_int(2)), dc.get_feature_a(c_int(0)) * KP, dc.get_feature_a(c_int(1)) * KI, dc.get_feature_a(c_int(2)) * KD )
+	print "t=%06i\tx=%.4f\ty=%.4f\toffA=%.4f\terrA=%.4f\tfeatA=[%.4f %.4f %.4f]\terrA=[%.4f %.4f %.4f]" % ( millis, dc.get_position_x(), dc.get_position_y(), dc.get_motor_offset_a(), dc.get_err_a(), dc.get_pid_a_error_p(), dc.get_pid_a_error_i(), dc.get_pid_a_error_d(), dc.get_pid_a_error_p() * KP, dc.get_pid_a_error_i() * KI, dc.get_pid_a_error_d() * KD )
 
 if __name__ == "__main__":
 	dc = cdll.LoadLibrary(SONAME)
@@ -18,8 +18,12 @@ if __name__ == "__main__":
 	dc.get_err_a.restype = c_double
 	dc.get_err_b.restype = c_double
 	dc.get_motor_adjust.restype = c_double
-	dc.get_feature_a.restype = c_double
-	dc.get_feature_b.restype = c_double
+	dc.get_pid_a_error_p.restype = c_double
+	dc.get_pid_a_error_i.restype = c_double
+	dc.get_pid_a_error_d.restype = c_double
+	dc.get_pid_b_error_p.restype = c_double
+	dc.get_pid_b_error_i.restype = c_double
+	dc.get_pid_b_error_d.restype = c_double
 	
 	KP = 0.25
 	KI = 0.2
