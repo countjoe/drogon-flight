@@ -30,6 +30,11 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
                 pidAccumA(ACCUM_KP, ACCUM_KI, ACCUM_KD),
                 pidAccumB(ACCUM_KP, ACCUM_KI, ACCUM_KD) {
 
+    pidAbsoluteA.set_max_sum( MAX_ERR_TOTAL );
+    pidAbsoluteB.set_max_sum( MAX_ERR_TOTAL );
+    pidAccumA.set_max_sum( MAX_ERR_TOTAL );
+    pidAccumB.set_max_sum( MAX_ERR_TOTAL );
+
     motorAOffsetMatrix[0] = cos(ARM_ANGLE_A);
     motorAOffsetMatrix[1] = -sin(ARM_ANGLE_A);
     motorAOffsetMatrix[2] = 0;
@@ -54,14 +59,14 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
     motorOffsetVector[1] = ARM_LENGTH;
     motorOffsetVector[2] = 0;
     
-    zero_motor_values(0);
+    reset(0);
     
     position = _position;
 
     controlStart = false;
 }
 
-void DrogonController::zero_motor_values( unsigned long micros ) {
+void DrogonController::reset( unsigned long micros ) {
     pidAbsoluteA.reset( micros );
     pidAbsoluteB.reset( micros );
     pidAccumA.reset( micros );
@@ -81,7 +86,7 @@ void DrogonController::zero_motor_values( unsigned long micros ) {
 
 void DrogonController::control_update( unsigned long micros, const double target[3] ) {
     if ( !controlStart ) {
-        zero_motor_values( micros );
+        reset( micros );
         controlStart = true;
     } else {
         update_motor_values( micros, target );

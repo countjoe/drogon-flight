@@ -62,7 +62,7 @@ extern "C" {
         return dc.pidAbsoluteA.ei;
     }
     double get_pid_a_error_d(void) {
-        return dc.pidAbsoluteA.ep;
+        return dc.pidAbsoluteA.ed;
     }
     double get_pid_b_error_p(void) {
         return dc.pidAbsoluteB.ep;
@@ -71,7 +71,7 @@ extern "C" {
         return dc.pidAbsoluteB.ei;
     }
     double get_pid_b_error_d(void) {
-        return dc.pidAbsoluteB.ep;
+        return dc.pidAbsoluteB.ed;
     }
 	double get_err_a(void) {
 		return dc.pidAbsoluteA.error;

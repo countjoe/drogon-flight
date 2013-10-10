@@ -35,6 +35,8 @@ class DrogonController {
         
         DrogonPosition* get_position();
         
+        void reset( unsigned long micros );
+
         double motorAdjusts[4];
 		
         double motorOffsetA;
@@ -45,7 +47,6 @@ class DrogonController {
         DrogonPid pidAccumA;
         DrogonPid pidAccumB;
     private:
-        void zero_motor_values( unsigned long micros );
         void update_motor_values( unsigned long micros, const double target[3] );
         double array_mult( const double* a, const double* b, int len );
         void map_angles_to_motor_offsets( double targetX, double targetY );

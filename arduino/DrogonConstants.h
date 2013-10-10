@@ -34,16 +34,15 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define ABSOLUTE_KP 0.05
-#define ABSOLUTE_KI 0.002
-#define ABSOLUTE_KD 0.001
+#define ABSOLUTE_KP 0.06
+#define ABSOLUTE_KI 0.075
+#define ABSOLUTE_KD 0.05
 
-#define ACCUM_KP 0.005
-#define ACCUM_KI 0.0002
-#define ACCUM_KD 0.0001
+#define ACCUM_KP 0.0003
+#define ACCUM_KI 0.000375
+#define ACCUM_KD 0.00025
 
-#define MAX_ERR_TOTAL 5
-#define MIN_ERR_TOTAL -MAX_ERR_TOTAL
+#define MAX_ERR_TOTAL 100
 
 #define ARM_LENGTH 300
 #define ARM_ANGLE_A (45.0 * PI / 180.0)
