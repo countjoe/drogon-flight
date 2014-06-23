@@ -25,15 +25,11 @@
 #include "DrogonConstants.h"
 
 DrogonController::DrogonController( DrogonPosition *_position ) :
-                pidAbsoluteA(ABSOLUTE_KP, ABSOLUTE_KI, ABSOLUTE_KD),
-                pidAbsoluteB(ABSOLUTE_KP, ABSOLUTE_KI, ABSOLUTE_KD),
-                pidAccumA(ACCUM_KP, ACCUM_KI, ACCUM_KD),
-                pidAccumB(ACCUM_KP, ACCUM_KI, ACCUM_KD) {
+            pidA(INIT_KP, INIT_KI, INIT_KD),
+            pidB(INIT_KP, INIT_KI, INIT_KD) {
 
-    pidAbsoluteA.set_max_sum( MAX_ERR_TOTAL );
-    pidAbsoluteB.set_max_sum( MAX_ERR_TOTAL );
-    pidAccumA.set_max_sum( MAX_ERR_TOTAL );
-    pidAccumB.set_max_sum( MAX_ERR_TOTAL );
+    pidA.set_max_sum( MAX_ERR_TOTAL );
+    pidB.set_max_sum( MAX_ERR_TOTAL );
 
     motorAOffsetMatrix[0] = cos(ARM_ANGLE_A);
     motorAOffsetMatrix[1] = -sin(ARM_ANGLE_A);
@@ -67,16 +63,11 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
 }
 
 void DrogonController::reset( unsigned long micros ) {
-    pidAbsoluteA.reset( micros );
-    pidAbsoluteB.reset( micros );
-    pidAccumA.reset( micros );
-    pidAccumB.reset( micros );
+    pidA.reset( micros );
+    pidB.reset( micros );
     
     motorOffsetA = 0.0;
     motorOffsetB = 0.0;
-
-    errAccumA = 0.0;
-    errAccumB = 0.0;
 
     motorAdjusts[0] = 0.0;
     motorAdjusts[1] = 0.0;
@@ -96,14 +87,8 @@ void DrogonController::control_update( unsigned long micros, const double target
 void DrogonController::update_motor_values( unsigned long micros, const double target[3] ) {
     map_angles_to_motor_offsets( target[0], target[1] );
 
-    errAccumA += pidAccumA.update( micros, motorOffsetA );
-    errAccumB += pidAccumB.update( micros, motorOffsetB );
-
-    double errA = pidAbsoluteA.update( micros, motorOffsetA );
-    double errB = pidAbsoluteB.update( micros, motorOffsetB );
-
-    errA += errAccumA;
-    errB += errAccumB;
+    double errA = pidA.update( micros, motorOffsetA );
+    double errB = pidB.update( micros, motorOffsetB );
 
     motorAdjusts[0] = -errA;
     motorAdjusts[2] =  errA;

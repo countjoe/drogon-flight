@@ -50,34 +50,34 @@ extern "C" {
 		dc.control_update(micros, zeroPosition);
 	}
 	void update_thetas( double kp, double ki, double kd ) {
-		dc.pidAbsoluteA.set_thetas( kp, ki, kd );
+		dc.pidA.set_thetas( kp, ki, kd );
 	}
 	double get_motor_adjust(int idx) {	
 		return dc.motorAdjusts[idx];
 	}
 	double get_pid_a_error_p(void) {
-		return dc.pidAbsoluteA.ep;
+		return dc.pidA.ep;
 	}
     double get_pid_a_error_i(void) {
-        return dc.pidAbsoluteA.ei;
+        return dc.pidA.ei;
     }
     double get_pid_a_error_d(void) {
-        return dc.pidAbsoluteA.ed;
+        return dc.pidA.ed;
     }
     double get_pid_b_error_p(void) {
-        return dc.pidAbsoluteB.ep;
+        return dc.pidA.ep;
     }
     double get_pid_b_error_i(void) {
-        return dc.pidAbsoluteB.ei;
+        return dc.pidA.ei;
     }
     double get_pid_b_error_d(void) {
-        return dc.pidAbsoluteB.ed;
+        return dc.pidA.ed;
     }
 	double get_err_a(void) {
-		return dc.pidAbsoluteA.error;
+		return dc.pidA.error;
 	}
 	double get_err_b(void) {
-		return dc.pidAbsoluteB.error;
+		return dc.pidA.error;
 	}
 	double get_motor_offset_a(void) {
 		return dc.motorOffsetA;

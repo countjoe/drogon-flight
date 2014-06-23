@@ -34,13 +34,9 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define ABSOLUTE_KP 0.06
-#define ABSOLUTE_KI 0.075
-#define ABSOLUTE_KD 0.05
-
-#define ACCUM_KP 0.0003
-#define ACCUM_KI 0.000375
-#define ACCUM_KD 0.00025
+#define INIT_KP 0.1
+#define INIT_KI 0.075
+#define INIT_KD 0.05
 
 #define MAX_ERR_TOTAL 100
 

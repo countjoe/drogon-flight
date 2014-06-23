@@ -42,10 +42,8 @@ class DrogonController {
         double motorOffsetA;
         double motorOffsetB;
         
-        DrogonPid pidAbsoluteA;
-        DrogonPid pidAbsoluteB;
-        DrogonPid pidAccumA;
-        DrogonPid pidAccumB;
+        DrogonPid pidA;
+        DrogonPid pidB;
     private:
         void update_motor_values( unsigned long micros, const double target[3] );
         double array_mult( const double* a, const double* b, int len );
@@ -56,9 +54,6 @@ class DrogonController {
         
         bool controlStart;
         
-        double errAccumA;
-        double errAccumB;
-
         double motorAOffsetMatrix[3*3];
         double motorBOffsetMatrix[3*3];
         double motorOffsetVector[3];
