@@ -58,8 +58,6 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
     reset(0);
     
     position = _position;
-
-    controlStart = false;
 }
 
 void DrogonController::reset( unsigned long micros ) {
@@ -73,6 +71,8 @@ void DrogonController::reset( unsigned long micros ) {
     motorAdjusts[1] = 0.0;
     motorAdjusts[2] = 0.0;
     motorAdjusts[3] = 0.0;
+
+    controlStart = false;
 }
 
 void DrogonController::control_update( unsigned long micros, const double target[3] ) {

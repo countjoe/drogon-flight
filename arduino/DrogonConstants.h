@@ -34,9 +34,9 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define INIT_KP 0.1
-#define INIT_KI 0.075
-#define INIT_KD 0.05
+#define INIT_KP 0.035
+#define INIT_KI 0.0075
+#define INIT_KD 0.008
 
 #define MAX_ERR_TOTAL 100
 
