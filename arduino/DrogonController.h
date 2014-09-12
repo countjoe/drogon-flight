@@ -26,6 +26,7 @@
 #include "DrogonPosition.h"
 
 #include "DrogonPid.h"
+#include "DrogonPidTuner.h"
 
 class DrogonController {
     public:
@@ -36,6 +37,7 @@ class DrogonController {
         DrogonPosition* get_position();
         
         void reset( unsigned long micros );
+        void tune();
 
         double motorAdjusts[4];
 		
@@ -51,6 +53,9 @@ class DrogonController {
         void rot_matrix_mult( const double* a, const double* b, double* dst );
         
 		DrogonPosition* position;
+
+		DrogonPidTuner pidATuner;
+		DrogonPidTuner pidBTuner;
         
         bool controlStart;
         

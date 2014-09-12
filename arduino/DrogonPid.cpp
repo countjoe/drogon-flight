@@ -28,9 +28,9 @@
 #endif
 
 DrogonPid::DrogonPid( double kp, double ki, double kd ) {
-    this->kp = kp;
-    this->ki = ki;
-    this->kd = kd;
+    this->k[0] = kp;
+    this->k[1] = ki;
+    this->k[2] = kd;
 
     maxSum = 0.0;
 
@@ -44,28 +44,28 @@ double DrogonPid::update( unsigned long micros, double value ) {
         return error;
     }
 
-    ep = value;
+    e[0] = value;
 
     // calculate elapsed time since last error update in seconds
     double elapsed = ( micros - lastUpdated ) / 1000000.0;
 
-    ei += ( ( errLast + ( ( ep - errLast ) / 2.0 ) ) * elapsed );
+    e[1] += ( ( errLast + ( ( e[0] - errLast ) / 2.0 ) ) * elapsed );
 
     // bound err total to min/max to prevent overrunning
     if ( maxSum != 0.0 ) {
-        ei = max( -maxSum, min( maxSum, ei ) );
+        e[1] = max( -maxSum, min( maxSum, e[1] ) );
     }
 
     // err diff is change in degrees in seconds from last update
-    ed = ( ep - errLast ) / elapsed;
+    e[2] = ( e[0] - errLast ) / elapsed;
 
     // setup features (PID values) for motor A
-    error = ep * kp +     // P component, raw error offset
-            ei * ki +     // I component, total error
-            ed * kd;      // D component, rate of change of error
+    error = e[0] * k[0] +     // P component, raw error offset
+            e[1] * k[1] +     // I component, total error
+            e[2] * k[2];      // D component, rate of change of error
 
     // store last error values
-    errLast = ep;
+    errLast = e[0];
 
     // store time of this update
     lastUpdated = micros;
@@ -74,9 +74,9 @@ double DrogonPid::update( unsigned long micros, double value ) {
 }
 
 void DrogonPid::reset( unsigned long micros ) {
-    ep = 0.0;
-    ei = 0.0;
-    ed = 0.0;
+    e[0] = 0.0;
+    e[1] = 0.0;
+    e[2] = 0.0;
 
     errLast = 0.0;
 
@@ -90,9 +90,16 @@ void DrogonPid::set_max_sum( double maxSum ) {
 }
 
 void DrogonPid::set_thetas( double kp, double ki, double kd ) {
-    this->kp = kp;
-    this->ki = ki;
-    this->kd = kd;
+    this->k[0] = kp;
+    this->k[1] = ki;
+    this->k[2] = kd;
 }
 
+double* DrogonPid::get_thetas() {
+    return this->k;
+}
+
+double* DrogonPid::get_errors() {
+    return this->e;
+}
 

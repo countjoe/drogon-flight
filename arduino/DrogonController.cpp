@@ -26,7 +26,9 @@
 
 DrogonController::DrogonController( DrogonPosition *_position ) :
             pidA(INIT_KP, INIT_KI, INIT_KD),
-            pidB(INIT_KP, INIT_KI, INIT_KD) {
+            pidB(INIT_KP, INIT_KI, INIT_KD),
+            pidATuner(&pidA),
+            pidBTuner(&pidB) {
 
     pidA.set_max_sum( MAX_ERR_TOTAL );
     pidB.set_max_sum( MAX_ERR_TOTAL );
@@ -64,6 +66,9 @@ void DrogonController::reset( unsigned long micros ) {
     pidA.reset( micros );
     pidB.reset( micros );
     
+    pidATuner.reset();
+    pidBTuner.reset();
+
     motorOffsetA = 0.0;
     motorOffsetB = 0.0;
 
@@ -73,6 +78,11 @@ void DrogonController::reset( unsigned long micros ) {
     motorAdjusts[3] = 0.0;
 
     controlStart = false;
+}
+
+void DrogonController::tune( void ) {
+    pidATuner.tune();
+    pidBTuner.tune();
 }
 
 void DrogonController::control_update( unsigned long micros, const double target[3] ) {
@@ -89,6 +99,9 @@ void DrogonController::update_motor_values( unsigned long micros, const double t
 
     double errA = pidA.update( micros, motorOffsetA );
     double errB = pidB.update( micros, motorOffsetB );
+
+    pidATuner.update( errA );
+    pidATuner.update( errB );
 
     motorAdjusts[0] = -errA;
     motorAdjusts[2] =  errA;

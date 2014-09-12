@@ -1,5 +1,5 @@
 /*
- * DrogonPid.h
+ * DrogonPidTuner.h
  *
  * This file is part of Drogon.
  *
@@ -20,36 +20,32 @@
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
 
-#ifndef __DROGONPID_H__
-#define __DROGONPID_H__
+#ifndef __DROGONPIDTUNER_H__
+#define __DROGONPIDTUNER_H__
 
-class DrogonPid {
+#include "DrogonPid.h"
+
+class DrogonPidTuner {
     public:
-        DrogonPid( double kp, double ki, double kd );
+        DrogonPidTuner( DrogonPid *pid );
 
-        double update( unsigned long micros, double value );
+        void reset( void );
 
-        void reset( unsigned long micros );
+        void update( double error );
 
-        void set_thetas( double kp, double ki, double kd );
-
-        double* get_thetas( void );
-        double* get_errors( void );
-
-        void set_max_sum( double maxSum );
-
-        double error;
-
+        void tune( void );
     private:
-        double k[3];
-        double e[3];
+        DrogonPid *pid;
 
-        double errLast;
+        double errorTotal;
+        int errorCount;
 
-        unsigned long lastUpdated;
+        double dk[3];
+        int dki;
+        double lastDk;
 
-        double maxSum;
+        double bestError;
 };
 
 
-#endif /* __DROGONPID_H__ */
+#endif /* __DROGONPIDTUNER_H__ */

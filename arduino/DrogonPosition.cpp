@@ -80,17 +80,17 @@ void DrogonPosition::update( unsigned long micros, const double accelValues[3], 
 	x = calc_mean( x, varSq, sensorX, sensorVarSq );
 	y = calc_mean( y, varSq, sensorY, sensorVarSq );
 	
-	varSq = calc_var( varSq, sensorVarSq );
+	//varSq = calc_var( varSq, sensorVarSq );
 	
-	varSq *= varUpdateScale;
+	//varSq *= varUpdateScale;
 	
 	if ( elapsedSeconds > 0.0 ) {
 		velocityX = calc_mean( velocityX, velocityVarSq, ( x - lastX ) / elapsedSeconds, velVarSq );
 		velocityY = calc_mean( velocityY, velocityVarSq, ( y - lastY ) / elapsedSeconds, velVarSq );
 		
-		velocityVarSq = calc_var( velocityVarSq, velVarSq );
+		//velocityVarSq = calc_var( velocityVarSq, velVarSq );
 		
-		velocityVarSq *= varUpdateScale;
+		//velocityVarSq *= varUpdateScale;
 	}
 	
 	lastMicros = micros;

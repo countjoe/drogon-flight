@@ -26,6 +26,7 @@
 using namespace std;
 
 #include <sys/time.h>
+#include <jni.h>
 
 DrogonPosition position;
 DrogonController dc(&position);
@@ -33,7 +34,7 @@ DrogonController dc(&position);
 double zeroPosition[] = { 0.0, 0.0, 0.0 };
 
 extern "C" {
-	void set_position( double x, double y ) {
+	JNIEXPORT void JNICALL Java_org_joemonti_drogon_flight_DrogonFlight_setPosition( jdouble x, jdouble y ) {
 		position.x = x;
 		position.y = y;
 	}
@@ -56,28 +57,28 @@ extern "C" {
 		return dc.motorAdjusts[idx];
 	}
 	double get_pid_a_error_p(void) {
-		return dc.pidA.get_errors()[0];
+		return dc.pidA.ep;
 	}
     double get_pid_a_error_i(void) {
-        return dc.pidA.get_errors()[1];
+        return dc.pidA.ei;
     }
     double get_pid_a_error_d(void) {
-        return dc.pidA.get_errors()[2];
+        return dc.pidA.ed;
     }
     double get_pid_b_error_p(void) {
-        return dc.pidA.get_errors()[0];
+        return dc.pidB.ep;
     }
     double get_pid_b_error_i(void) {
-        return dc.pidA.get_errors()[1];
+        return dc.pidB.ei;
     }
     double get_pid_b_error_d(void) {
-        return dc.pidA.get_errors()[2];
+        return dc.pidB.ed;
     }
 	double get_err_a(void) {
 		return dc.pidA.error;
 	}
 	double get_err_b(void) {
-		return dc.pidA.error;
+		return dc.pidB.error;
 	}
 	double get_motor_offset_a(void) {
 		return dc.motorOffsetA;
@@ -93,15 +94,4 @@ extern "C" {
 		
 		return 1000000 * tv.tv_sec + tv.tv_usec;
 	}
-}
-
-
-int main(int argc, char** argv) {
-	
-	long m = micros();
-	
-	//DrogonPosition pos;
-	//DrogonController dc(&pos);
-	
-	cout << "Hello Word : " << m << " micros\n";
 }
