@@ -46,6 +46,8 @@ class DrogonController {
         
         DrogonPid pidA;
         DrogonPid pidB;
+        DrogonPidTuner pidATuner;
+        DrogonPidTuner pidBTuner;
     private:
         void update_motor_values( unsigned long micros, const double target[3] );
         double array_mult( const double* a, const double* b, int len );
@@ -54,9 +56,6 @@ class DrogonController {
         
 		DrogonPosition* position;
 
-		DrogonPidTuner pidATuner;
-		DrogonPidTuner pidBTuner;
-        
         bool controlStart;
         
         double motorAOffsetMatrix[3*3];

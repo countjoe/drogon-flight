@@ -34,11 +34,17 @@ class DrogonPidTuner {
         void update( double error );
 
         void tune( void );
+
+        double* getAdjusts( void );
+
+        double getLastError( void );
     private:
         DrogonPid *pid;
 
         double errorTotal;
         int errorCount;
+
+        double lastError;
 
         double dk[3];
         int dki;
