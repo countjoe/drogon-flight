@@ -78,7 +78,7 @@ void DrogonPidTuner::tune( void ) {
 
         if ( this->dk[this->dki] > 0.0 ) {
             // reverse direction
-            this->dk[this->dki] *= -1;
+            this->dk[this->dki] *= -1.0;
         } else {
             // reverse direction and decrease dk[i]
             this->dk[this->dki] *= -TUNER_SCALE_DOWN;

@@ -34,8 +34,8 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define INIT_KP 0.001
-#define INIT_KI 0.00001
+#define INIT_KP 0.0001
+#define INIT_KI 0.0001
 #define INIT_KD 0.0001
 
 #define MAX_ERR_TOTAL 100
@@ -54,7 +54,7 @@
 #define INIT_VEL_POS_UPDATE_VAR_SQ 2.25
 #define INIT_VEL_VAR_SQ 0.25
 
-#define TUNER_INIT 0.25
+#define TUNER_INIT 10
 #define TUNER_TOLERANCE 0.00001
 #define TUNER_SCALE_MINOR 1.02
 #define TUNER_SCALE_MAJOR 1.1

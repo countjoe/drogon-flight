@@ -100,8 +100,8 @@ void DrogonController::update_motor_values( unsigned long micros, const double t
     double errA = pidA.update( micros, motorOffsetA );
     double errB = pidB.update( micros, motorOffsetB );
 
-    pidATuner.update( errA );
-    pidATuner.update( errB );
+    pidATuner.update( motorOffsetA );
+    pidATuner.update( motorOffsetB );
 
     motorAdjusts[0] = -errA;
     motorAdjusts[2] =  errA;
