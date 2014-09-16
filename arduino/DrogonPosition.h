@@ -47,6 +47,8 @@ class DrogonPosition {
 		double x;
 		double y;
 		
+		double zRot;
+
 		double velocityX;
 		double velocityY;
 	private:

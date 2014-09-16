@@ -28,6 +28,8 @@ DrogonPosition::DrogonPosition(void) {
 	x = 0.0;	
 	y = 0.0;
 	
+	zRot = 0.0;
+
 	velocityX = 0.0;
 	velocityY = 0.0;
 	
@@ -80,6 +82,8 @@ void DrogonPosition::update( unsigned long micros, const double accelValues[3], 
 	x = calc_mean( x, varSq, sensorX, sensorVarSq );
 	y = calc_mean( y, varSq, sensorY, sensorVarSq );
 	
+	zRot = calc_mean( zRot, Z_ROT_VAR_SQ, gyroValues[2], Z_ROT_UPDATE_VAR_SQ );
+
 	//varSq = calc_var( varSq, sensorVarSq );
 	
 	//varSq *= varUpdateScale;

@@ -48,6 +48,9 @@ class DrogonController {
         DrogonPid pidB;
         DrogonPidTuner pidATuner;
         DrogonPidTuner pidBTuner;
+
+        DrogonPid pidRotate;
+        DrogonPidTuner pidRotateTuner;
     private:
         void update_motor_values( unsigned long micros, const double target[3] );
         double array_mult( const double* a, const double* b, int len );

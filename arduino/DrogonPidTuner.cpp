@@ -72,6 +72,11 @@ void DrogonPidTuner::tune( void ) {
 
         // scale dk[i], a little less if increasing, a little more if decreasing
         this->dk[this->dki] *= ( this->dk[this->dki] > 0.0 ? TUNER_SCALE_MINOR : TUNER_SCALE_MAJOR );
+
+        this->dki += 1;
+        if ( this->dki >= 3 ) { // be sure to wrap around
+            this->dki = 0;
+        }
     } else {
         // oops! undo last change :(
         this->pid->get_thetas()[this->dki] -= this->lastDk;

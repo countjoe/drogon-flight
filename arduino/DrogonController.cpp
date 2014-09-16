@@ -28,10 +28,13 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
             pidA(INIT_KP, INIT_KI, INIT_KD),
             pidB(INIT_KP, INIT_KI, INIT_KD),
             pidATuner(&pidA),
-            pidBTuner(&pidB) {
+            pidBTuner(&pidB),
+            pidRotate(INIT_KP, INIT_KI, INIT_KD),
+            pidRotateTuner(&pidRotate) {
 
     pidA.set_max_sum( MAX_ERR_TOTAL );
     pidB.set_max_sum( MAX_ERR_TOTAL );
+    pidRotate.set_max_sum( MAX_ERR_TOTAL );
 
     motorAOffsetMatrix[0] = cos(ARM_ANGLE_A);
     motorAOffsetMatrix[1] = -sin(ARM_ANGLE_A);
@@ -65,9 +68,11 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
 void DrogonController::reset( unsigned long micros ) {
     pidA.reset( micros );
     pidB.reset( micros );
+    pidRotate.reset( micros );
     
-    pidATuner.reset();
-    pidBTuner.reset();
+    //pidATuner.reset();
+    //pidBTuner.reset();
+    //pidRotateTuner.reset();
 
     motorOffsetA = 0.0;
     motorOffsetB = 0.0;
@@ -83,6 +88,7 @@ void DrogonController::reset( unsigned long micros ) {
 void DrogonController::tune( void ) {
     pidATuner.tune();
     pidBTuner.tune();
+    pidRotateTuner.tune();
 }
 
 void DrogonController::control_update( unsigned long micros, const double target[3] ) {
@@ -100,14 +106,17 @@ void DrogonController::update_motor_values( unsigned long micros, const double t
     double errA = pidA.update( micros, motorOffsetA );
     double errB = pidB.update( micros, motorOffsetB );
 
+    double errRotate = pidRotate.update( micros, position->zRot );
+
     pidATuner.update( motorOffsetA );
-    pidATuner.update( motorOffsetB );
+    pidBTuner.update( motorOffsetB );
+    pidRotateTuner.update( position->zRot );
 
-    motorAdjusts[0] = -errA;
-    motorAdjusts[2] =  errA;
+    motorAdjusts[0] = -errA + errRotate;
+    motorAdjusts[2] =  errA + errRotate;
 
-    motorAdjusts[1] =  errB;
-    motorAdjusts[3] = -errB;
+    motorAdjusts[1] =  errB - errRotate;
+    motorAdjusts[3] = -errB - errRotate;
 }
 
 DrogonPosition* DrogonController::get_position() {
