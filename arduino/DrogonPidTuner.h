@@ -38,8 +38,12 @@ class DrogonPidTuner {
         double* getAdjusts( void );
 
         double getLastError( void );
+
+        double getBestError( void );
     private:
         DrogonPid *pid;
+
+        bool firstPass;
 
         double errorTotal;
         int errorCount;

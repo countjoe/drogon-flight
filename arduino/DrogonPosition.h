@@ -55,17 +55,12 @@ class DrogonPosition {
 		double calc_mean( double mean1, double var1, double mean2, double var2 );
 		double calc_var( double var1, double var2 );
 		
-		double varSq;
-		double sensorVarSq;
-		double velocityVarSq;
-		
-		unsigned long lastMicros;
+        double accelX;
+        double accelY;
+        double gyroX;
+        double gyroY;
 
-		double accelVarSq;
-		double gyroVarSq;
-		double varUpdateScale;
-		double velPosUpdateVarSq;
-		double velVarSq;
+		unsigned long lastMicros;
 };
 
 #endif

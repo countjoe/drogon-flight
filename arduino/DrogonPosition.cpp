@@ -33,19 +33,11 @@ DrogonPosition::DrogonPosition(void) {
 	velocityX = 0.0;
 	velocityY = 0.0;
 	
-	varSq = INIT_START_VAR_SQ;
-	
-	accelVarSq = INIT_ACCEL_VAR_SQ;
-	gyroVarSq = INIT_GYRO_VAR_SQ;
-	varUpdateScale = INIT_VAR_UPDATE_SCALE;
-	velPosUpdateVarSq = INIT_VEL_POS_UPDATE_VAR_SQ;
-	velVarSq = INIT_VEL_VAR_SQ;
-
-	sensorVarSq = calc_var( accelVarSq, gyroVarSq );
-	
-	velocityVarSq = INIT_START_VEL_VAR_SQ;
-	
 	lastMicros = 0;
+	accelX = 0.0;
+	accelY = 0.0;
+	gyroX = 0.0;
+	gyroY = 0.0;
 }
 
 void DrogonPosition::update( unsigned long micros, const double accelValues[3], const double gyroValues[3] ) {
@@ -57,30 +49,36 @@ void DrogonPosition::update( unsigned long micros, const double accelValues[3], 
 
     double elapsedSeconds = ( micros - lastMicros ) / 1000000.0;
 
-	double accelX = (-accelValues[1]*ACCEL_SCALE); // translate to robot coords
-	double accelY = (accelValues[0]*ACCEL_SCALE);  // translate to robot coords
+	double accelXUpdate = (-accelValues[1]*ACCEL_SCALE); // translate to robot coords
+	double accelYUpdate = (accelValues[0]*ACCEL_SCALE);  // translate to robot coords
 	
 	// gyroscope is degrees/second, so gyroscope estimated position is:
-	double gyroX = x + ( gyroValues[0] * elapsedSeconds );
-	double gyroY = y + ( gyroValues[1] * elapsedSeconds );
+	double gyroXUpdate = x + ( gyroValues[0] * elapsedSeconds );
+	double gyroYUpdate = y + ( gyroValues[1] * elapsedSeconds );
 	
 	double lastX = x;
 	double lastY = y;
 	
-	double sensorX = calc_mean( accelX, accelVarSq, gyroX, gyroVarSq );
-	double sensorY = calc_mean( accelY, accelVarSq, gyroY, gyroVarSq );
+	accelX = calc_mean( accelX, ACCEL_VAR_SQ_A, accelXUpdate, ACCEL_VAR_SQ_B );
+	accelY = calc_mean( accelY, ACCEL_VAR_SQ_A, accelYUpdate, ACCEL_VAR_SQ_B );
+
+	gyroX = calc_mean( gyroX, GYRO_VAR_SQ_A, gyroXUpdate, GYRO_VAR_SQ_B );
+	gyroY = calc_mean( gyroY, GYRO_VAR_SQ_A, gyroYUpdate, GYRO_VAR_SQ_B );
+
+	double sensorX = calc_mean( accelX, ACCEL_MERGE_VAR_SQ, gyroX, GYRO_MERGE_VAR_SQ );
+	double sensorY = calc_mean( accelY, ACCEL_MERGE_VAR_SQ, gyroY, GYRO_MERGE_VAR_SQ );
 	
 	// update current position with velocity
-	x = calc_mean( x, varSq, x + ( velocityX * elapsedSeconds ), velPosUpdateVarSq );
-    y = calc_mean( y, varSq, y + ( velocityY * elapsedSeconds ), velPosUpdateVarSq );
+	x = calc_mean( x, POS_VAR_SQ_A, x + ( velocityX * elapsedSeconds ), POS_VAR_SQ_V );
+    y = calc_mean( y, POS_VAR_SQ_A, y + ( velocityY * elapsedSeconds ), POS_VAR_SQ_V );
 	
     // don't update position variance, don't want to increase
     //varSqX = calc_var( varSqX, VEL_POS_UPDATE_VAR_SQ );
     //varSqY = calc_var( varSqY, VEL_POS_UPDATE_VAR_SQ );
 
     // apply sensor position to current position
-	x = calc_mean( x, varSq, sensorX, sensorVarSq );
-	y = calc_mean( y, varSq, sensorY, sensorVarSq );
+	x = calc_mean( x, POS_VAR_SQ_A, sensorX, POS_VAR_SQ_B );
+	y = calc_mean( y, POS_VAR_SQ_A, sensorY, POS_VAR_SQ_B );
 	
 	zRot = calc_mean( zRot, Z_ROT_VAR_SQ, gyroValues[2], Z_ROT_UPDATE_VAR_SQ );
 
@@ -89,8 +87,8 @@ void DrogonPosition::update( unsigned long micros, const double accelValues[3], 
 	//varSq *= varUpdateScale;
 	
 	if ( elapsedSeconds > 0.0 ) {
-		velocityX = calc_mean( velocityX, velocityVarSq, ( x - lastX ) / elapsedSeconds, velVarSq );
-		velocityY = calc_mean( velocityY, velocityVarSq, ( y - lastY ) / elapsedSeconds, velVarSq );
+		velocityX = calc_mean( velocityX, VEL_VAR_SQ_A, ( x - lastX ) / elapsedSeconds, VEL_VAR_SQ_B );
+		velocityY = calc_mean( velocityY, VEL_VAR_SQ_A, ( y - lastY ) / elapsedSeconds, VEL_VAR_SQ_B );
 		
 		//velocityVarSq = calc_var( velocityVarSq, velVarSq );
 		
@@ -98,47 +96,6 @@ void DrogonPosition::update( unsigned long micros, const double accelValues[3], 
 	}
 	
 	lastMicros = micros;
-}
-
-void DrogonPosition::set_accel_var_sq( double accelVarSq ) {
-    this->accelVarSq = accelVarSq;
-    sensorVarSq = calc_var( accelVarSq, gyroVarSq );
-}
-double DrogonPosition::get_accel_var_sq( void ) {
-    return accelVarSq;
-}
-
-void DrogonPosition::set_gyro_var_sq( double gyroVarSq ) {
-    this->gyroVarSq = gyroVarSq;
-    sensorVarSq = calc_var( accelVarSq, gyroVarSq );
-}
-
-double DrogonPosition::get_gyro_var_sq( void ) {
-    return gyroVarSq;
-}
-
-void DrogonPosition::set_variance_update_scale( double varUpdateScale ) {
-    this->varUpdateScale = varUpdateScale;
-}
-
-double DrogonPosition::get_variance_update_scale( void ) {
-    return varUpdateScale;
-}
-
-void DrogonPosition::set_velocity_position_update_var_sq( double velPosUpdateVarSq ) {
-    this->velPosUpdateVarSq = velPosUpdateVarSq;
-}
-
-double DrogonPosition::get_velocity_position_update_var_sq( void ) {
-    return velPosUpdateVarSq;
-}
-
-void DrogonPosition::set_velocity_var_sq( double velVarSq ) {
-    this->velVarSq = velVarSq;
-}
-
-double DrogonPosition::get_velocity_var_sq( void ) {
-    return velVarSq;
 }
 
 double DrogonPosition::calc_mean( double mean1, double var1, double mean2, double var2 ) {

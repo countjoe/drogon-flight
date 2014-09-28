@@ -34,30 +34,38 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define INIT_KP 0.0001
-#define INIT_KI 0.0001
-#define INIT_KD 0.0001
+#define INIT_KP 0.0
+#define INIT_KI 0.0
+#define INIT_KD 0.0
 
-#define MAX_ERR_TOTAL 100
+#define MAX_ERR_TOTAL 100.0
 
 #define ARM_LENGTH 300
 #define ARM_ANGLE_A (45.0 * PI / 180.0)
 #define ARM_ANGLE_B ((90.0+45.0) * PI / 180.0)
 
-#define ACCEL_SCALE (1/6.2)
+#define ACCEL_SCALE 0.1276
 
-#define INIT_START_VAR_SQ 4
-#define INIT_START_VEL_VAR_SQ 1
-#define INIT_ACCEL_VAR_SQ 1.96
-#define INIT_GYRO_VAR_SQ 0.64
-#define INIT_VAR_UPDATE_SCALE 1.5
-#define INIT_VEL_POS_UPDATE_VAR_SQ 2.25
-#define INIT_VEL_VAR_SQ 0.25
+#define ACCEL_VAR_SQ_A 0.8
+#define ACCEL_VAR_SQ_B 0.2
+
+#define GYRO_VAR_SQ_A 0.8
+#define GYRO_VAR_SQ_B 0.2
+
+#define ACCEL_MERGE_VAR_SQ 4.0
+#define GYRO_MERGE_VAR_SQ 1.5
+
+#define POS_VAR_SQ_A 0.8
+#define POS_VAR_SQ_B 0.4
+#define POS_VAR_SQ_V 0.6
+
+#define VEL_VAR_SQ_A 0.8
+#define VEL_VAR_SQ_B 0.2
 
 #define Z_ROT_VAR_SQ 0.25
 #define Z_ROT_UPDATE_VAR_SQ 0.5
 
-#define TUNER_INIT 10
+#define TUNER_INIT 0.1
 #define TUNER_TOLERANCE 0.00001
 #define TUNER_SCALE_MINOR 1.02
 #define TUNER_SCALE_MAJOR 1.1

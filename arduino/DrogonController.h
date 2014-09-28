@@ -40,6 +40,8 @@ class DrogonController {
         void tune();
 
         double motorAdjusts[4];
+
+        double zRotAdjust;
 		
         double motorOffsetA;
         double motorOffsetB;
@@ -60,7 +62,7 @@ class DrogonController {
 		DrogonPosition* position;
 
         bool controlStart;
-        
+
         double motorAOffsetMatrix[3*3];
         double motorBOffsetMatrix[3*3];
         double motorOffsetVector[3];
