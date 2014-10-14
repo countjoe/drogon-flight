@@ -34,9 +34,9 @@ DrogonPidTuner::DrogonPidTuner( DrogonPid *pid ) {
 
     this->firstPass = true;
 
-    this->dk[0] = TUNER_INIT;
-    this->dk[1] = TUNER_INIT;
-    this->dk[2] = TUNER_INIT;
+    this->dk[0] = INIT_KP * TUNER_INIT;
+    this->dk[1] = INIT_KI * TUNER_INIT;
+    this->dk[2] = INIT_KD * TUNER_INIT;
 
     this->dki = 0;
     this->lastDk = 0.0;

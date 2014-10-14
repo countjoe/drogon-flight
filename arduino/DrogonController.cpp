@@ -114,13 +114,13 @@ void DrogonController::update_motor_values( unsigned long micros, const double t
     pidBTuner.update( motorOffsetB );
     pidRotateTuner.update( position->zRot );
 
-    zRotAdjust += errRotate;
+    zRotAdjust = errRotate;
 
-    motorAdjusts[0] -= errA;
-    motorAdjusts[2] += errA;
+    motorAdjusts[0] = -errA;
+    motorAdjusts[2] = errA;
 
-    motorAdjusts[1] += errB;
-    motorAdjusts[3] -= errB;
+    motorAdjusts[1] = errB;
+    motorAdjusts[3] = -errB;
 }
 
 DrogonPosition* DrogonController::get_position() {
