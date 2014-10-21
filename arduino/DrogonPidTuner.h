@@ -35,11 +35,12 @@ class DrogonPidTuner {
 
         void tune( void );
 
-        double* getAdjusts( void );
+        void set_adjusts( double ap, double ai, double ad );
+        double* get_adjusts( void );
 
-        double getLastError( void );
+        double get_last_error( void );
 
-        double getBestError( void );
+        double get_best_error( void );
     private:
         DrogonPid *pid;
 

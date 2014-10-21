@@ -101,7 +101,7 @@ void DrogonPidTuner::tune( void ) {
     }
 
     // scale by random number between 0.5 and 1.0 to introduce some uncertainty
-    double dk = this->dk[this->dki]; // * ( ( (rand()/(double)RAND_MAX) / 2.0 ) + 0.5 );
+    double dk = this->dk[this->dki] * ( ( (rand()/(double)RAND_MAX) / 2.0 ) + 0.5 );
 
     this->pid->get_thetas()[this->dki] += dk;
 
@@ -113,14 +113,20 @@ void DrogonPidTuner::tune( void ) {
     this->lastError = errorAvg;
 }
 
-double* DrogonPidTuner::getAdjusts( void ) {
+double* DrogonPidTuner::get_adjusts( void ) {
     return this->dk;
 }
 
-double DrogonPidTuner::getLastError( void ) {
+void DrogonPidTuner::set_adjusts( double ap, double ai, double ad ) {
+    this->dk[0] = ap;
+    this->dk[1] = ai;
+    this->dk[2] = ad;
+}
+
+double DrogonPidTuner::get_last_error( void ) {
     return this->lastError;
 }
 
-double DrogonPidTuner::getBestError( void ) {
+double DrogonPidTuner::get_best_error( void ) {
     return this->bestError;
 }
