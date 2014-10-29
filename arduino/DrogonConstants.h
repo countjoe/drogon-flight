@@ -34,11 +34,11 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define INIT_KP 0.3
-#define INIT_KI 1.5
-#define INIT_KD 0.02
+#define INIT_KP 0.1
+#define INIT_KI 0.1
+#define INIT_KD 0.01
 
-#define MAX_ERR_TOTAL 10.0
+#define MAX_ERR_TOTAL 20.0
 
 #define ARM_LENGTH 280
 #define ARM_ANGLE_A (45.0 * PI / 180.0)
@@ -65,7 +65,7 @@
 #define Z_ROT_VAR_SQ 0.25
 #define Z_ROT_UPDATE_VAR_SQ 0.5
 
-#define TUNER_INIT 0.75
+#define TUNER_INIT 2.75
 #define TUNER_TOLERANCE 0.00001
 #define TUNER_SCALE_MINOR 1.05
 #define TUNER_SCALE_MAJOR 1.2
