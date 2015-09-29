@@ -34,9 +34,9 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define INIT_KP 0.1
-#define INIT_KI 0.1
-#define INIT_KD 0.01
+#define INIT_KP 0.01
+#define INIT_KI 0.01
+#define INIT_KD 0.001
 
 #define MAX_ERR_TOTAL 20.0
 
@@ -46,7 +46,7 @@
 
 #define ACCEL_SCALE 0.1276
 
-#define ACCEL_VAR_SQ_A 0.8
+#define ACCEL_VAR_SQ_A 16.0
 #define ACCEL_VAR_SQ_B 0.2
 
 #define GYRO_VAR_SQ_A 0.8
