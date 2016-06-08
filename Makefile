@@ -5,13 +5,13 @@ DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG) -fPIC
 LFLAGS = -Wall $(DEBUG)
 
-all: libdrogonflight.so libjdrogonflight.so
+all: libdrogonflight.so # libjdrogonflight.so
 
-libjdrogonflight.so : $(JNI_OBJS)
-	$(CC) -I ${JAVA_HOME}/include/ -I ${JAVA_HOME}/include/linux/ -shared -Wl,-soname,$@ -o $@ $(JNI_OBJS)
+#libjdrogonflight.so : $(JNI_OBJS)
+#	$(CC) -I ${JAVA_HOME}/include/ -I ${JAVA_HOME}/include/linux/ -shared -Wl,-soname,$@ -o $@ $(JNI_OBJS)
 
-org_joemonti_drogon_flight_DrogonFlight.o: org_joemonti_drogon_flight_DrogonFlight.cpp org_joemonti_drogon_flight_DrogonFlight.h
-	$(CC) -I ${JAVA_HOME}/include/ -I ${JAVA_HOME}/include/linux/ -c $< -o $@ $(CFLAGS)
+#org_joemonti_drogon_flight_DrogonFlight.o: org_joemonti_drogon_flight_DrogonFlight.cpp org_joemonti_drogon_flight_DrogonFlight.h
+#	$(CC) -I ${JAVA_HOME}/include/ -I ${JAVA_HOME}/include/linux/ -c $< -o $@ $(CFLAGS)
 
 libdrogonflight.so: $(OBJS)
 	$(CC) -shared -Wl,-soname,$@ -o $@ $(OBJS)
@@ -20,4 +20,4 @@ libdrogonflight.so: $(OBJS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm -f arduino/*.o *.o libdrogonflight.so libjdrogonflight.so
+	rm -f arduino/*.o *.o libdrogonflight.so #libjdrogonflight.so

@@ -27,9 +27,9 @@ class DrogonPid {
     public:
         DrogonPid( double kp, double ki, double kd );
 
-        double update( unsigned long micros, double value );
+        double update( long long nanos, double value );
 
-        void reset( unsigned long micros );
+        void reset( long long nanos );
 
         void set_thetas( double kp, double ki, double kd );
 
@@ -46,7 +46,7 @@ class DrogonPid {
 
         double errLast;
 
-        unsigned long lastUpdated;
+        long long lastUpdated;
 
         double maxSum;
 };

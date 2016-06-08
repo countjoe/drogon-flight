@@ -33,24 +33,24 @@ DrogonPosition::DrogonPosition(void) {
 	velocityX = 0.0;
 	velocityY = 0.0;
 	
-	lastMicros = 0;
+	lastUpdated = 0;
 	accelX = 0.0;
 	accelY = 0.0;
 	gyroX = 0.0;
 	gyroY = 0.0;
 }
 
-void DrogonPosition::update( unsigned long micros, const double accelValues[3], const double gyroValues[3] ) {
-    if ( lastMicros == 0 || lastMicros >= micros ) {
+void DrogonPosition::update( long long nanos, const double accelValues[3], const double gyroValues[3] ) {
+    if ( lastUpdated == 0 || lastUpdated >= nanos ) {
         // sit this one out
-        lastMicros = micros;
+        lastUpdated = nanos;
         return;
     }
 
-    double elapsedSeconds = ( micros - lastMicros ) / 1000000.0;
+    double elapsedSeconds = ( nanos - lastUpdated ) / 1000000000.0;
 
-	double accelXUpdate = (-accelValues[1]*ACCEL_SCALE); // translate to robot coords
-	double accelYUpdate = (accelValues[0]*ACCEL_SCALE);  // translate to robot coords
+	double accelXUpdate = (accelValues[0]*ACCEL_SCALE); // translate to robot coords
+	double accelYUpdate = (accelValues[1]*ACCEL_SCALE);  // translate to robot coords
 	
 	// gyroscope is degrees/second, so gyroscope estimated position is:
 	double gyroXUpdate = x + ( gyroValues[0] * elapsedSeconds );
@@ -95,7 +95,7 @@ void DrogonPosition::update( unsigned long micros, const double accelValues[3], 
 		//velocityVarSq *= varUpdateScale;
 	}
 	
-	lastMicros = micros;
+	lastUpdated = nanos;
 }
 
 double DrogonPosition::calc_mean( double mean1, double var1, double mean2, double var2 ) {

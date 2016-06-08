@@ -27,7 +27,7 @@ class DrogonPosition {
 	public:
 		DrogonPosition(void);
 		
-		void update( unsigned long micros, const double accelValues[3], const double gyroValues[3] );
+		void update( long long micros, const double accelValues[3], const double gyroValues[3] );
 		
 		void set_accel_var_sq( double accelVarSq );
 		double get_accel_var_sq( void );
@@ -60,7 +60,7 @@ class DrogonPosition {
         double gyroX;
         double gyroY;
 
-		unsigned long lastMicros;
+		long long lastUpdated;
 };
 
 #endif
