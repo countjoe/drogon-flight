@@ -7,7 +7,7 @@ LFLAGS = -Wall $(DEBUG)
 all: libdrogonflight.so
 
 libdrogonflight.so: $(OBJS)
-	$(CC) -shared -Wl,-soname,drogonflight -o $@ $(OBJS)
+	$(CC) -shared -Wl,-soname,libdrogonflight.so -o $@ $(OBJS)
 
 %.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
