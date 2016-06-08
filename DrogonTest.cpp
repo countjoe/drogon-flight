@@ -20,7 +20,7 @@
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
 
-#include "arduino/DrogonController.h"
+#include "DrogonController.h"
 
 #include <iostream>
 using namespace std;
