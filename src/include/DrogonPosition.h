@@ -23,11 +23,13 @@
 #ifndef __DROGON_POSITION_H__
 #define __DROGON_POSITION_H__
 
+#include "DrogonCommon.h"
+
 class DrogonPosition {
 	public:
 		DrogonPosition(void);
 		
-		void update( unsigned long micros, const double accelValues[3], const double gyroValues[3] );
+		void update( double t, vector3d* accelValues, vector3d* gyroValues );
 		
 		void set_accel_var_sq( double accelVarSq );
 		double get_accel_var_sq( void );
@@ -60,7 +62,7 @@ class DrogonPosition {
         double gyroX;
         double gyroY;
 
-		unsigned long lastMicros;
+		double lastUpdated;
 };
 
 #endif

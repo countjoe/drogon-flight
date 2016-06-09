@@ -65,10 +65,10 @@ DrogonController::DrogonController( DrogonPosition *_position ) :
     position = _position;
 }
 
-void DrogonController::reset( unsigned long micros ) {
-    pidA.reset( micros );
-    pidB.reset( micros );
-    pidRotate.reset( micros );
+void DrogonController::reset( double t ) {
+    pidA.reset( t );
+    pidB.reset( t );
+    pidRotate.reset( t );
     
     //pidATuner.reset();
     //pidBTuner.reset();
@@ -93,22 +93,22 @@ void DrogonController::tune( void ) {
     pidRotateTuner.tune();
 }
 
-void DrogonController::control_update( unsigned long micros, const double target[3] ) {
+void DrogonController::control_update( double t, const double target[3] ) {
     if ( !controlStart ) {
-        reset( micros );
+        reset( t );
         controlStart = true;
     } else {
-        update_motor_values( micros, target );
+        update_motor_values( t, target );
     }
 }
 
-void DrogonController::update_motor_values( unsigned long micros, const double target[3] ) {
+void DrogonController::update_motor_values( double t, const double target[3] ) {
     map_angles_to_motor_offsets( target[0], target[1] );
 
-    double errA = pidA.update( micros, motorOffsetA );
-    double errB = pidB.update( micros, motorOffsetB );
+    double errA = pidA.update( t, motorOffsetA );
+    double errB = pidB.update( t, motorOffsetB );
 
-    double errRotate = pidRotate.update( micros, position->zRot );
+    double errRotate = pidRotate.update( t, position->zRot );
 
     pidATuner.update( motorOffsetA );
     pidBTuner.update( motorOffsetB );

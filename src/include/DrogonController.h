@@ -32,11 +32,11 @@ class DrogonController {
     public:
         DrogonController( DrogonPosition *_position );
         
-        void control_update( unsigned long micros, const double target[3] );
+        void control_update( double t, const double target[3] );
         
         DrogonPosition* get_position();
         
-        void reset( unsigned long micros );
+        void reset( double t );
         void tune();
 
         double motorAdjusts[4];
@@ -54,7 +54,7 @@ class DrogonController {
         DrogonPid pidRotate;
         DrogonPidTuner pidRotateTuner;
     private:
-        void update_motor_values( unsigned long micros, const double target[3] );
+        void update_motor_values( double t, const double target[3] );
         double array_mult( const double* a, const double* b, int len );
         void map_angles_to_motor_offsets( double targetX, double targetY );
         void rot_matrix_mult( const double* a, const double* b, double* dst );
