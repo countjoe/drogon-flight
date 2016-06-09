@@ -1,5 +1,5 @@
 /*
- * DrogonFlight.cpp
+ * drogon-flight.cpp
  * 
  * This file is part of Drogon.
  *

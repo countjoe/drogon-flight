@@ -1,13 +1,13 @@
 Drogon Flight
 =============
 
-Flight stabilization and positioning for the Drogon Quadcopter.
+Flight Controller for the Drogon Quadcopter. This includes incorporating
+sensor data and motor control to perform positioning and stabilization.
 
 Installation
 ---------------------
 
-To install, copy files in ./arduino/ to a new directory called 'ArduinoFlight'
-under your Arduino libraries folder (usually ~/Arduino/libraries).
+TODO
 
 Important
 ---------------------
