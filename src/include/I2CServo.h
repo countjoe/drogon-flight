@@ -1,5 +1,5 @@
 /*
- * DrogonPid.h
+ * I2CServo.h
  *
  * This file is part of Drogon.
  *
@@ -19,37 +19,21 @@
  * Author: Joseph Monti <joe.monti@gmail.com>
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
+#ifndef __I2CSERVO_H__
+#define __I2CSERVO_H__
 
-#ifndef __DROGONPID_H__
-#define __DROGONPID_H__
+class I2CServo {
+  public:
+    I2CServo(int addr);
+    
+    void setFreq(float freq);
+    void setMicros(int channel, int micros);
+    
+    void close(void);
 
-class DrogonPid {
-    public:
-        DrogonPid( double kp, double ki, double kd );
-
-        double update( double t, double value );
-
-        void reset( double t );
-
-        void set_thetas( double kp, double ki, double kd );
-
-        double* get_thetas( void );
-        double* get_errors( void );
-
-        void set_max_sum( double maxSum );
-
-        double error;
-
-    private:
-        double k[3];
-        double e[3];
-
-        double errLast;
-
-        double lastUpdated;
-
-        double maxSum;
+  private:
+    int file;
+    float offPerMicro;
 };
 
-
-#endif /* __DROGONPID_H__ */
+#endif // __I2CSERVO_H__

@@ -1,5 +1,5 @@
 /*
- * DrogonPid.h
+ * DrogonCommon.h
  *
  * This file is part of Drogon.
  *
@@ -20,36 +20,24 @@
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
 
-#ifndef __DROGONPID_H__
-#define __DROGONPID_H__
-
-class DrogonPid {
-    public:
-        DrogonPid( double kp, double ki, double kd );
-
-        double update( double t, double value );
-
-        void reset( double t );
-
-        void set_thetas( double kp, double ki, double kd );
-
-        double* get_thetas( void );
-        double* get_errors( void );
-
-        void set_max_sum( double maxSum );
-
-        double error;
-
-    private:
-        double k[3];
-        double e[3];
-
-        double errLast;
-
-        double lastUpdated;
-
-        double maxSum;
-};
+#ifndef __DROGON_COMMON_H__
+#define __DROGON_COMMON_H__
 
 
-#endif /* __DROGONPID_H__ */
+typedef struct vector3d_s
+{
+    double x;
+    double y;
+    double z;
+} vector3d;
+
+
+typedef struct vector4d_s
+{
+    double m1;
+    double m2;
+    double m3;
+    double m4;
+} vector4d;
+
+#endif  // __DROGON_COMMON_H__

@@ -1,10 +1,13 @@
-OBJS = src/DrogonPid.o src/DrogonPidTuner.o src/DrogonPosition.o src/DrogonController.o DrogonTest.o
+SRC = ./src
+INCLUDE = $(SRC)/include
+OBJS = $(SRC)/DrogonPid.o $(SRC)/DrogonPidTuner.o $(SRC)/DrogonPosition.o \
+	  $(SRC)/DrogonController.o $(SRC)/I2C.o $(SRC)/I2CIMU.o $(SRC)/I2CServo.o \
+	  $(SRC)/DrogonFlight.o $(SRC)/drogon-flight.o
 CC = g++
 DEBUG = -g
-CFLAGS = -Wall -c $(DEBUG) -fPIC -I ./src/include/
-LFLAGS = -Wall $(DEBUG)
+CFLAGS = -std=c++11 -I $(INCLUDE) -I ../drogon-flight/src/include $(DEBUG) -Wall
 
-all: libdrogonflight.so
+all: drogon-flight
 
 libdrogonflight.so: $(OBJS)
 	$(CC) -shared -Wl,-soname,libdrogonflight.so -o $@ $(OBJS)
@@ -12,5 +15,8 @@ libdrogonflight.so: $(OBJS)
 %.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+drogon-flight: $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
 clean:
-	rm -f src/*.o *.o libdrogonflight.so
+	rm -f src/*.o drogon-flight

@@ -1,6 +1,8 @@
 *.so
 *.o
 
-.project
-.cproject
-.pydevproject
+/drogon-flight
+
+/.project
+/.cproject
+/.pydevproject

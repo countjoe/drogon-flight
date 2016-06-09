@@ -33,21 +33,21 @@ DrogonPid::DrogonPid( double kp, double ki, double kd ) {
     this->k[2] = kd;
 
     maxSum = 0.0;
-
+    
     reset( 0 );
 }
 
-double DrogonPid::update( long long nanos, double value ) {
-    if ( lastUpdated == 0 || nanos < lastUpdated ) {
+double DrogonPid::update( double t, double value ) {
+    if ( lastUpdated == 0.0 || t < lastUpdated ) {
         // don't update if haven't yet updated or overflowed
-        lastUpdated = nanos;
+        lastUpdated = t;
         return error;
     }
 
     e[0] = value;
 
     // calculate elapsed time since last error update in seconds
-    double elapsed = ( nanos - lastUpdated ) / 1000000000.0;
+    double elapsed = ( t - lastUpdated );
 
     e[1] += ( ( errLast + ( ( e[0] - errLast ) / 2.0 ) ) * elapsed );
 
@@ -68,12 +68,12 @@ double DrogonPid::update( long long nanos, double value ) {
     errLast = e[0];
 
     // store time of this update
-    lastUpdated = nanos;
+    lastUpdated = t;
 
     return error;
 }
 
-void DrogonPid::reset( long long nanos ) {
+void DrogonPid::reset( double t ) {
     e[0] = 0.0;
     e[1] = 0.0;
     e[2] = 0.0;
@@ -82,7 +82,7 @@ void DrogonPid::reset( long long nanos ) {
 
     error = 0.0;
 
-    lastUpdated = nanos;
+    lastUpdated = t;
 }
 
 void DrogonPid::set_max_sum( double maxSum ) {

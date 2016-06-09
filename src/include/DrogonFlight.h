@@ -1,5 +1,5 @@
 /*
- * DrogonPid.h
+ * DrogonFlight.h
  *
  * This file is part of Drogon.
  *
@@ -20,36 +20,53 @@
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
 
-#ifndef __DROGONPID_H__
-#define __DROGONPID_H__
+#ifndef __DROGON_FLIGHT_H__
+#define __DROGON_FLIGHT_H__
 
-class DrogonPid {
-    public:
-        DrogonPid( double kp, double ki, double kd );
+#include "DrogonCommon.h"
+#include "I2C.h"
+#include "I2CIMU.h"
+#include "DrogonPosition.h" 
+#include "DrogonController.h"
 
-        double update( double t, double value );
+#include <iostream>
 
-        void reset( double t );
 
-        void set_thetas( double kp, double ki, double kd );
+class DrogonFlight {
+public:
+    DrogonFlight(void);
 
-        double* get_thetas( void );
-        double* get_errors( void );
+    void run(void);
 
-        void set_max_sum( double maxSum );
+    void read_imu(void);
 
-        double error;
+    void close(void);
 
-    private:
-        double k[3];
-        double e[3];
+    double now(void);
 
-        double errLast;
+private:
+    void print_vec(FILE* f, vector3d* vec);
 
-        double lastUpdated;
+    //I2C i2c;
+    
+    //I2CLSM303Accel accel(&i2c);
+    //I2CLSM303Mag mag(&i2c);
+    //I2CL3GD20Gyro gyro(&i2c);
 
-        double maxSum;
+    DrogonPosition pos;
+    DrogonController ctrl;
+
+    vector3d accelValues;
+    vector3d gyroValues;
+    vector3d magValues;
+
+    int motorValues[4];
+    double motorAdjusts[4];
+    double zRotAdjust;
+
+    double motorMaster;
+    double motorRotate[3];
 };
 
 
-#endif /* __DROGONPID_H__ */
+#endif  // __DROGON_FLIGHT_H__

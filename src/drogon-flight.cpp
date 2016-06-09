@@ -1,6 +1,6 @@
 /*
- * DrogonPid.h
- *
+ * DrogonFlight.cpp
+ * 
  * This file is part of Drogon.
  *
  * Drogon is free software: you can redistribute it and/or modify
@@ -14,42 +14,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Drogon.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Drogon.  If not, see <http://www.gnu.org/licenses/>. 
  *
  * Author: Joseph Monti <joe.monti@gmail.com>
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
 
-#ifndef __DROGONPID_H__
-#define __DROGONPID_H__
+#include "DrogonFlight.h"
 
-class DrogonPid {
-    public:
-        DrogonPid( double kp, double ki, double kd );
+int main()
+{
+    DrogonFlight drogon_flight;
 
-        double update( double t, double value );
+    drogon_flight.run();
 
-        void reset( double t );
-
-        void set_thetas( double kp, double ki, double kd );
-
-        double* get_thetas( void );
-        double* get_errors( void );
-
-        void set_max_sum( double maxSum );
-
-        double error;
-
-    private:
-        double k[3];
-        double e[3];
-
-        double errLast;
-
-        double lastUpdated;
-
-        double maxSum;
-};
-
-
-#endif /* __DROGONPID_H__ */
+    drogon_flight.close();
+}

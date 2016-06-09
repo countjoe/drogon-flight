@@ -33,28 +33,28 @@ DrogonPosition::DrogonPosition(void) {
 	velocityX = 0.0;
 	velocityY = 0.0;
 	
-	lastUpdated = 0;
+	lastUpdated = 0.0;
 	accelX = 0.0;
 	accelY = 0.0;
 	gyroX = 0.0;
 	gyroY = 0.0;
 }
 
-void DrogonPosition::update( long long nanos, const double accelValues[3], const double gyroValues[3] ) {
-    if ( lastUpdated == 0 || lastUpdated >= nanos ) {
+void DrogonPosition::update( double t, vector3d* accelValues, vector3d* gyroValues ) {
+    if ( lastUpdated == 0.0 || lastUpdated >= t ) {
         // sit this one out
-        lastUpdated = nanos;
+        lastUpdated = t;
         return;
     }
 
-    double elapsedSeconds = ( nanos - lastUpdated ) / 1000000000.0;
+    double elapsedSeconds = ( t - lastUpdated );
 
-	double accelXUpdate = (accelValues[0]*ACCEL_SCALE); // translate to robot coords
-	double accelYUpdate = (accelValues[1]*ACCEL_SCALE);  // translate to robot coords
+	double accelXUpdate = (accelValues->x * ACCEL_SCALE); // translate to robot coords
+	double accelYUpdate = (accelValues->y * ACCEL_SCALE);  // translate to robot coords
 	
 	// gyroscope is degrees/second, so gyroscope estimated position is:
-	double gyroXUpdate = x + ( gyroValues[0] * elapsedSeconds );
-	double gyroYUpdate = y + ( gyroValues[1] * elapsedSeconds );
+	double gyroXUpdate = x + ( gyroValues->x * elapsedSeconds );
+	double gyroYUpdate = y + ( gyroValues->y * elapsedSeconds );
 	
 	double lastX = x;
 	double lastY = y;
@@ -80,7 +80,7 @@ void DrogonPosition::update( long long nanos, const double accelValues[3], const
 	x = calc_mean( x, POS_VAR_SQ_A, sensorX, POS_VAR_SQ_B );
 	y = calc_mean( y, POS_VAR_SQ_A, sensorY, POS_VAR_SQ_B );
 	
-	zRot = calc_mean( zRot, Z_ROT_VAR_SQ, gyroValues[2], Z_ROT_UPDATE_VAR_SQ );
+	zRot = calc_mean( zRot, Z_ROT_VAR_SQ, gyroValues->z, Z_ROT_UPDATE_VAR_SQ );
 
 	//varSq = calc_var( varSq, sensorVarSq );
 	
@@ -95,7 +95,7 @@ void DrogonPosition::update( long long nanos, const double accelValues[3], const
 		//velocityVarSq *= varUpdateScale;
 	}
 	
-	lastUpdated = nanos;
+	lastUpdated = t;
 }
 
 double DrogonPosition::calc_mean( double mean1, double var1, double mean2, double var2 ) {

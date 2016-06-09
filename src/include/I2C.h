@@ -1,5 +1,5 @@
 /*
- * DrogonPid.h
+ * I2C.h
  *
  * This file is part of Drogon.
  *
@@ -20,36 +20,20 @@
  * Copyright (c) 2013 Joseph Monti All Rights Reserved, http://joemonti.org/
  */
 
-#ifndef __DROGONPID_H__
-#define __DROGONPID_H__
+#ifndef __I2C_H__
+#define __I2C_H__
 
-class DrogonPid {
-    public:
-        DrogonPid( double kp, double ki, double kd );
-
-        double update( double t, double value );
-
-        void reset( double t );
-
-        void set_thetas( double kp, double ki, double kd );
-
-        double* get_thetas( void );
-        double* get_errors( void );
-
-        void set_max_sum( double maxSum );
-
-        double error;
-
-    private:
-        double k[3];
-        double e[3];
-
-        double errLast;
-
-        double lastUpdated;
-
-        double maxSum;
+class I2C {
+  public:
+    I2C(void);
+    
+    void set_addr(int addr);
+    
+    void close(void);
+    
+    int file;
+  private:
+    int last_addr;
 };
 
-
-#endif /* __DROGONPID_H__ */
+#endif  // __I2C_H__
