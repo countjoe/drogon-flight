@@ -1,11 +1,12 @@
 SRC = ./src
 INCLUDE = $(SRC)/include
+DEPS = $(INCLUDE)/*.h
 OBJS = $(SRC)/DrogonPid.o $(SRC)/DrogonPidTuner.o $(SRC)/DrogonPosition.o \
 	  $(SRC)/DrogonController.o $(SRC)/I2C.o $(SRC)/I2CIMU.o $(SRC)/I2CServo.o \
-	  $(SRC)/DrogonFlight.o $(SRC)/drogon-flight.o
+	  $(SRC)/DrogonFlight.o $(SRC)/RCoreClient.o $(SRC)/drogon-flight.o
 CC = g++
 DEBUG = -g
-CFLAGS = -std=c++11 -I $(INCLUDE) -I ../drogon-flight/src/include $(DEBUG) -Wall
+CFLAGS = -std=c++11 -I $(INCLUDE) -I ../drogon-flight/src/include $(DEBUG) -Wall -lzmq
 
 all: drogon-flight
 

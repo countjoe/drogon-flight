@@ -21,12 +21,36 @@
  */
 
 #include "DrogonFlight.h"
+#include "RCoreClient.h"
+
+#include <signal.h>
+#include <cstdlib>
+
+DrogonFlight* drogon_flight = NULL;
+
+void my_handler(int s) 
+{
+    printf("Caught signal %d, exiting\n",s);
+    if (drogon_flight != NULL) {
+        delete drogon_flight;
+    }
+    exit(1);
+}
 
 int main()
 {
-    DrogonFlight drogon_flight;
+    struct sigaction sigIntHandler;
 
-    drogon_flight.run();
+    sigIntHandler.sa_handler = my_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
 
-    drogon_flight.close();
+    sigaction(SIGINT, &sigIntHandler, NULL);
+
+    drogon_flight = new DrogonFlight();
+    
+    drogon_flight->run();
+
+    printf("FINISHED");
+    return 0;
 }

@@ -24,6 +24,7 @@
 #define __DROGON_FLIGHT_H__
 
 #include "DrogonCommon.h"
+#include "RCoreClient.h"
 #include "I2C.h"
 #include "I2CIMU.h"
 #include "DrogonPosition.h" 
@@ -34,18 +35,19 @@
 
 class DrogonFlight {
 public:
-    DrogonFlight(void);
+    DrogonFlight();
+    ~DrogonFlight();
 
-    void run(void);
+    void run();
 
-    void read_imu(void);
+    void read_imu();
 
-    void close(void);
-
-    double now(void);
+    double now();
 
 private:
     void print_vec(FILE* f, vector3d* vec);
+
+    RCoreClient rcore;
 
     //I2C i2c;
     

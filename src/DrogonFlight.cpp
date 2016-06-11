@@ -32,7 +32,7 @@
 using namespace std;
 
 
-DrogonFlight::DrogonFlight(void) : ctrl(&pos)
+DrogonFlight::DrogonFlight() : rcore("localhost"), ctrl(&pos)
 {
     accelValues.x = 0;
     accelValues.y = 0;
@@ -52,25 +52,38 @@ DrogonFlight::DrogonFlight(void) : ctrl(&pos)
     motorRotate[2] = 0.0;
 }
 
-void DrogonFlight::run(void)
+DrogonFlight::~DrogonFlight()
 {
-    FILE* f;
-    char fname[100];
-    int i;
+    rcore.close();
+    //i2c.close();
+}
+
+void DrogonFlight::run()
+{
+    //FILE* f;
+    //char fname[100];
 
     double t = now();
 
-    sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
-    f = fopen(fname, "w");
+    //sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
+    //f = fopen(fname, "w");
 
-    for (i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++) {
         t = now();
 
         read_imu();
         pos.update(t, &accelValues, &gyroValues);
 
-        fprintf(f, "%f", t);
-
+        if ( rcore.read() ) {
+            if ( rcore.is_arm_data() ) {
+                uint8_t arm = rcore.get_arm_data();
+                printf("%f,ARM,%d\n", t, arm);
+            } else if ( rcore.is_motor_data() ) {
+                double motor = rcore.get_motor_data();
+                printf("%f,MOTOR,%f\n", t, motor);
+            }
+        }
+        
         //accel.read(&vec);
         //print_vec(f, &vec);
         
@@ -80,15 +93,13 @@ void DrogonFlight::run(void)
         //gyro.read(&vec);
         //print_vec(f, &vec);
 
-        fprintf(f, "\n");
-
-        this_thread::sleep_for(chrono::milliseconds(10));
+        this_thread::sleep_for(chrono::milliseconds(50));
     }
 
-    fclose(f);
+    //fclose(f);
 }
 
-void DrogonFlight::read_imu(void)
+void DrogonFlight::read_imu()
 {
     //accel.read(&accelValues);
 
@@ -97,18 +108,13 @@ void DrogonFlight::read_imu(void)
     //gyro.read(&gyroValues);
 }
 
-void DrogonFlight::close(void)
-{
-    //i2c.close();
-}
-
 
 void DrogonFlight::print_vec(FILE* f, vector3d* vec)
 {
     fprintf(f, ",%f,%f,%f", vec->x, vec->y, vec->z);
 }
 
-double DrogonFlight::now(void)
+double DrogonFlight::now()
 {
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     return now_tp.time_since_epoch().count() * chrono::high_resolution_clock::period::num / static_cast<double>(chrono::high_resolution_clock::period::den);
