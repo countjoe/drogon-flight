@@ -4,6 +4,13 @@ Drogon Flight
 Flight Controller for the Drogon Quadcopter. This includes incorporating
 sensor data and motor control to perform positioning and stabilization.
 
+It is designed for the following components:
+
+  * Raspberry Pi
+  * Adafruit 16-Channel 12-bit PWM/Servo Shield - I2C interface
+  * Adafruit 10-DOF IMU Breakout - L3GD20H + LSM303 + BMP180 
+
+
 Installation
 ---------------------
 

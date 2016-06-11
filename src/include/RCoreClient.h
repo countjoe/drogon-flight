@@ -47,15 +47,15 @@ class RCoreClient {
   public:
     RCoreClient(const char* host);
 
-    bool read(void);
+    bool read();
 
-    bool is_arm_data(void);
-    uint8_t get_arm_data(void);
+    bool is_arm_data();
+    uint8_t get_arm_data();
 
-    bool is_motor_data(void);
-    double get_motor_data(void);
+    bool is_motor_data();
+    double get_motor_data();
 
-    void close(void);
+    void close();
 
   private:
     int register_event_type(const char * name, uint8_t* data_types, int ntypes);

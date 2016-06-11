@@ -147,12 +147,15 @@ RCoreClient::RCoreClient(const char* host)
     event_type_motor = register_event_type("flight_motor", motor_types, 1);
 }
 
-bool RCoreClient::read(void)
+bool RCoreClient::read()
 {
-    bool ok = sub_socket->recv(&sub_msg, ZMQ_NOBLOCK); 
+    bool ok = sub_socket->recv(&sub_msg, ZMQ_NOBLOCK);
     if (ok) {
         event_data = (uint8_t*)sub_msg.data();
         event_data_len = sub_msg.size();
+
+        printf("RECEIVED: ");
+        print_hex(event_data, event_data_len);
 
         event_data_offset = 0;
         event_type = read_short(event_data, &event_data_offset);
@@ -161,12 +164,12 @@ bool RCoreClient::read(void)
     return ok;
 }
 
-bool RCoreClient::is_arm_data(void)
+bool RCoreClient::is_arm_data()
 {
     return event_type == event_type_arm;
 }
 
-uint8_t RCoreClient::get_arm_data(void)
+uint8_t RCoreClient::get_arm_data()
 {
     if (!is_arm_data()) {
         throw std::runtime_error("Attempt to read non-arm data");
@@ -175,15 +178,15 @@ uint8_t RCoreClient::get_arm_data(void)
         throw std::runtime_error("Attempt to read already-read data");
     }
     has_read_data = true;
-    return read_double(event_data, &event_data_offset);
+    return read_byte(event_data, &event_data_offset);
 }
 
-bool RCoreClient::is_motor_data(void)
+bool RCoreClient::is_motor_data()
 {
     return event_type == event_type_motor;
 }
 
-double RCoreClient::get_motor_data(void)
+double RCoreClient::get_motor_data()
 {
     if (!is_motor_data()) {
         throw std::runtime_error("Attempt to read non-motor data");
@@ -192,11 +195,11 @@ double RCoreClient::get_motor_data(void)
         throw std::runtime_error("Attempt to read already-read data");
     }
     has_read_data = true;
-    return read_byte(event_data, &event_data_offset);
+    return read_double(event_data, &event_data_offset);
 }
 
 
-void RCoreClient::close(void)
+void RCoreClient::close()
 {
     delete mgt_socket;
     delete sub_socket;
@@ -228,6 +231,12 @@ int RCoreClient::register_event_type(const char * name, uint8_t* data_types, int
     offset = 0;
     read_short(resp_data, &offset); //unused, no need to verify resp type
     int eventTypeId = read_int(resp_data, &offset);
+
+    uint8_t sub_filter[sizeof(short)];
+    offset = 0;
+    write_short(sub_filter, &offset, (short)eventTypeId);
+
+    sub_socket->setsockopt(ZMQ_SUBSCRIBE, sub_filter, sizeof(short));
 
     return eventTypeId;
 }

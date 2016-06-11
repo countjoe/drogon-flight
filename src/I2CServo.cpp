@@ -161,6 +161,6 @@ void I2CServo::setMicros(int channel, int micros) {
     }
 }
 
-void I2CServo::close(void) {
+void I2CServo::close() {
     ::close(this->file);
 }

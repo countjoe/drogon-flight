@@ -68,7 +68,7 @@ void DrogonFlight::run()
     //sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
     //f = fopen(fname, "w");
 
-    for (int i = 0; i < 100; i++) {
+    while (true) {
         t = now();
 
         read_imu();
@@ -80,7 +80,7 @@ void DrogonFlight::run()
                 printf("%f,ARM,%d\n", t, arm);
             } else if ( rcore.is_motor_data() ) {
                 double motor = rcore.get_motor_data();
-                printf("%f,MOTOR,%f\n", t, motor);
+                printf("%f,MOTOR,%.12f\n", t, motor);
             }
         }
         

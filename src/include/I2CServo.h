@@ -29,7 +29,7 @@ class I2CServo {
     void setFreq(float freq);
     void setMicros(int channel, int micros);
     
-    void close(void);
+    void close();
 
   private:
     int file;
