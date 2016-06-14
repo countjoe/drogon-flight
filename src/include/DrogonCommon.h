@@ -31,6 +31,10 @@ typedef struct vector3d_s
     double z;
 } vector3d;
 
+inline void zero_vector3d(vector3d* vec) {
+    vec->x = vec->y = vec->z = 0.0;
+}
+
 
 typedef struct vector4d_s
 {
@@ -39,5 +43,10 @@ typedef struct vector4d_s
     double m3;
     double m4;
 } vector4d;
+
+inline void zero_vecto43d(vector4d* vec) {
+    vec->m1 = vec->m2 = vec->m3 = vec->m4 = 0.0;
+}
+
 
 #endif  // __DROGON_COMMON_H__

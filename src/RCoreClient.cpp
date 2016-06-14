@@ -127,7 +127,6 @@ void print_hex(uint8_t* data, int len)
 
 RCoreClient::RCoreClient(const char* host) 
 {
-    int tmp;
     char addr[100];
 
     context = new zmq::context_t(1);

@@ -14,7 +14,15 @@ It is designed for the following components:
 Installation
 ---------------------
 
+Requirements:
+
+  * ZMQ (on ubuntu: `sudo apt-get install libzmq3-dev`)
+  * I2C (on ubuntu: `sudo apt-get install libi2c-dev`)
+  * RobotCore (https://github.com/joemonti/robotcore)
+
+
 TODO
+
 
 Important
 ---------------------

@@ -32,19 +32,11 @@
 using namespace std;
 
 
-DrogonFlight::DrogonFlight() : rcore("localhost"), ctrl(&pos)
+DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost") // , accel(&i2c), mag(&i2c), gyro(&i2c)
 {
-    accelValues.x = 0;
-    accelValues.y = 0;
-    accelValues.z = 0;
-
-    magValues.x = 0;
-    magValues.y = 0;
-    magValues.z = 0;
-
-    gyroValues.x = 0;
-    gyroValues.y = 0;
-    gyroValues.z = 0;
+    zero_vector3d(&accelValues);
+    zero_vector3d(&magValues);
+    zero_vector3d(&gyroValues);
     
     motorMaster = 0.0;
     motorRotate[0] = 0.0;
@@ -67,12 +59,24 @@ void DrogonFlight::run()
 
     //sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
     //f = fopen(fname, "w");
+    //chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
+    //chrono::high_resolution_clock::time_point last_tp = chrono::high_resolution_clock::now();
+    //chrono::milliseconds log_interval(250);
+    chrono::milliseconds update_interval(20);
 
     while (true) {
         t = now();
 
+        /*
         read_imu();
         pos.update(t, &accelValues, &gyroValues);
+
+        now_tp = chrono::high_resolution_clock::now();
+        if ( (now_tp - last_tp) > log_interval ) {
+            //printf("%f,%f,%f,%f,%f,%f,%f\n", t, accelValues.x, accelValues.y, gyroValues.x, gyroValues.y, pos.position.x, pos.position.y);
+            last_tp = chrono::high_resolution_clock::now();
+        }
+        */
 
         if ( rcore.read() ) {
             if ( rcore.is_arm_data() ) {
@@ -83,17 +87,8 @@ void DrogonFlight::run()
                 printf("%f,MOTOR,%.12f\n", t, motor);
             }
         }
-        
-        //accel.read(&vec);
-        //print_vec(f, &vec);
-        
-        //mag.read(&vec);
-        //print_vec(f, &vec);
-
-        //gyro.read(&vec);
-        //print_vec(f, &vec);
-
-        this_thread::sleep_for(chrono::milliseconds(50));
+                
+        this_thread::sleep_for(update_interval);
     }
 
     //fclose(f);

@@ -25,19 +25,12 @@
 #include "DrogonConstants.h"
 
 DrogonPosition::DrogonPosition(void) {
-	x = 0.0;	
-	y = 0.0;
-	
-	zRot = 0.0;
-
-	velocityX = 0.0;
-	velocityY = 0.0;
+	zero_vector3d(&position);
+	zero_vector3d(&velocity);
+	zero_vector3d(&accel);
+	zero_vector3d(&gyro);
 	
 	lastUpdated = 0.0;
-	accelX = 0.0;
-	accelY = 0.0;
-	gyroX = 0.0;
-	gyroY = 0.0;
 }
 
 void DrogonPosition::update( double t, vector3d* accelValues, vector3d* gyroValues ) {
@@ -53,42 +46,43 @@ void DrogonPosition::update( double t, vector3d* accelValues, vector3d* gyroValu
 	double accelYUpdate = (accelValues->y * ACCEL_SCALE);  // translate to robot coords
 	
 	// gyroscope is degrees/second, so gyroscope estimated position is:
-	double gyroXUpdate = x + ( gyroValues->x * elapsedSeconds );
-	double gyroYUpdate = y + ( gyroValues->y * elapsedSeconds );
+	double gyroXUpdate = position.x + ( gyroValues->x * elapsedSeconds );
+	double gyroYUpdate = position.y + ( gyroValues->y * elapsedSeconds );
 	
-	double lastX = x;
-	double lastY = y;
+	vector3d last;
+	last.x = position.x;
+	last.y = position.y;
 	
-	accelX = calc_mean( accelX, ACCEL_VAR_SQ_A, accelXUpdate, ACCEL_VAR_SQ_B );
-	accelY = calc_mean( accelY, ACCEL_VAR_SQ_A, accelYUpdate, ACCEL_VAR_SQ_B );
+	accel.x = calc_mean( accel.x, ACCEL_VAR_SQ_A, accelXUpdate, ACCEL_VAR_SQ_B );
+	accel.y = calc_mean( accel.y, ACCEL_VAR_SQ_A, accelYUpdate, ACCEL_VAR_SQ_B );
 
-	gyroX = calc_mean( gyroX, GYRO_VAR_SQ_A, gyroXUpdate, GYRO_VAR_SQ_B );
-	gyroY = calc_mean( gyroY, GYRO_VAR_SQ_A, gyroYUpdate, GYRO_VAR_SQ_B );
+	gyro.x = calc_mean( gyro.x, GYRO_VAR_SQ_A, gyroXUpdate, GYRO_VAR_SQ_B );
+	gyro.y = calc_mean( gyro.y, GYRO_VAR_SQ_A, gyroYUpdate, GYRO_VAR_SQ_B );
 
-	double sensorX = calc_mean( accelX, ACCEL_MERGE_VAR_SQ, gyroX, GYRO_MERGE_VAR_SQ );
-	double sensorY = calc_mean( accelY, ACCEL_MERGE_VAR_SQ, gyroY, GYRO_MERGE_VAR_SQ );
+	double sensorX = calc_mean( accel.x, ACCEL_MERGE_VAR_SQ, gyro.x, GYRO_MERGE_VAR_SQ );
+	double sensorY = calc_mean( accel.y, ACCEL_MERGE_VAR_SQ, gyro.y, GYRO_MERGE_VAR_SQ );
 	
 	// update current position with velocity
-	x = calc_mean( x, POS_VAR_SQ_A, x + ( velocityX * elapsedSeconds ), POS_VAR_SQ_V );
-    y = calc_mean( y, POS_VAR_SQ_A, y + ( velocityY * elapsedSeconds ), POS_VAR_SQ_V );
+	position.x = calc_mean( position.x, POS_VAR_SQ_A, position.x + ( velocity.x * elapsedSeconds ), POS_VAR_SQ_V );
+    position.y = calc_mean( position.y, POS_VAR_SQ_A, position.y + ( velocity.y * elapsedSeconds ), POS_VAR_SQ_V );
 	
     // don't update position variance, don't want to increase
     //varSqX = calc_var( varSqX, VEL_POS_UPDATE_VAR_SQ );
     //varSqY = calc_var( varSqY, VEL_POS_UPDATE_VAR_SQ );
 
     // apply sensor position to current position
-	x = calc_mean( x, POS_VAR_SQ_A, sensorX, POS_VAR_SQ_B );
-	y = calc_mean( y, POS_VAR_SQ_A, sensorY, POS_VAR_SQ_B );
+	position.x = calc_mean( position.x, POS_VAR_SQ_A, sensorX, POS_VAR_SQ_B );
+	position.y = calc_mean( position.y, POS_VAR_SQ_A, sensorY, POS_VAR_SQ_B );
 	
-	zRot = calc_mean( zRot, Z_ROT_VAR_SQ, gyroValues->z, Z_ROT_UPDATE_VAR_SQ );
+	position.z = calc_mean( position.z, Z_ROT_VAR_SQ, gyroValues->z, Z_ROT_UPDATE_VAR_SQ );
 
 	//varSq = calc_var( varSq, sensorVarSq );
 	
 	//varSq *= varUpdateScale;
 	
 	if ( elapsedSeconds > 0.0 ) {
-		velocityX = calc_mean( velocityX, VEL_VAR_SQ_A, ( x - lastX ) / elapsedSeconds, VEL_VAR_SQ_B );
-		velocityY = calc_mean( velocityY, VEL_VAR_SQ_A, ( y - lastY ) / elapsedSeconds, VEL_VAR_SQ_B );
+		velocity.x = calc_mean( velocity.x, VEL_VAR_SQ_A, ( position.x - last.x ) / elapsedSeconds, VEL_VAR_SQ_B );
+		velocity.y = calc_mean( velocity.y, VEL_VAR_SQ_A, ( position.y - last.y ) / elapsedSeconds, VEL_VAR_SQ_B );
 		
 		//velocityVarSq = calc_var( velocityVarSq, velVarSq );
 		

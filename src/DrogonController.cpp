@@ -108,11 +108,11 @@ void DrogonController::update_motor_values( double t, const double target[3] ) {
     double errA = pidA.update( t, motorOffsetA );
     double errB = pidB.update( t, motorOffsetB );
 
-    double errRotate = pidRotate.update( t, position->zRot );
+    double errRotate = pidRotate.update( t, position->position.z );
 
     pidATuner.update( motorOffsetA );
     pidBTuner.update( motorOffsetB );
-    pidRotateTuner.update( position->zRot );
+    pidRotateTuner.update( position->position.z );
 
     zRotAdjust = errRotate;
 
@@ -151,8 +151,8 @@ void DrogonController::map_angles_to_motor_offsets( double targetX, double targe
     double zB;
 
     // convert angle in degrees to radians for trig functions
-    double angleXRadians = (position->x - targetX) * PI / 180.0;
-    double angleYRadians = (position->y - targetY) * PI / 180.0;
+    double angleXRadians = (position->position.x - targetX) * PI / 180.0;
+    double angleYRadians = (position->position.y - targetY) * PI / 180.0;
 
     // compute sines/cosines for rotation matrices
     double sinAngleX = sin(angleXRadians);

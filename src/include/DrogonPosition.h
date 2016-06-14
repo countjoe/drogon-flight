@@ -46,21 +46,14 @@ class DrogonPosition {
         void set_velocity_var_sq( double velVarSq );
         double get_velocity_var_sq( void );
 
-		double x;
-		double y;
-		
-		double zRot;
-
-		double velocityX;
-		double velocityY;
+		vector3d position;
+		vector3d velocity;
 	private:
 		double calc_mean( double mean1, double var1, double mean2, double var2 );
 		double calc_var( double var1, double var2 );
 		
-        double accelX;
-        double accelY;
-        double gyroX;
-        double gyroY;
+        vector3d accel;
+        vector3d gyro;
 
 		double lastUpdated;
 };

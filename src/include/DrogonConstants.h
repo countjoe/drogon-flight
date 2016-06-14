@@ -46,13 +46,13 @@
 
 #define ACCEL_SCALE 0.1276
 
-#define ACCEL_VAR_SQ_A 16.0
-#define ACCEL_VAR_SQ_B 0.2
+#define ACCEL_VAR_SQ_A 0.4
+#define ACCEL_VAR_SQ_B 2.0
 
-#define GYRO_VAR_SQ_A 0.8
-#define GYRO_VAR_SQ_B 0.2
+#define GYRO_VAR_SQ_A 0.4
+#define GYRO_VAR_SQ_B 1.2
 
-#define ACCEL_MERGE_VAR_SQ 4.0
+#define ACCEL_MERGE_VAR_SQ 2.0
 #define GYRO_MERGE_VAR_SQ 1.5
 
 #define POS_VAR_SQ_A 0.8

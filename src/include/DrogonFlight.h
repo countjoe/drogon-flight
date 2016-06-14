@@ -47,14 +47,6 @@ public:
 private:
     void print_vec(FILE* f, vector3d* vec);
 
-    RCoreClient rcore;
-
-    //I2C i2c;
-    
-    //I2CLSM303Accel accel(&i2c);
-    //I2CLSM303Mag mag(&i2c);
-    //I2CL3GD20Gyro gyro(&i2c);
-
     DrogonPosition pos;
     DrogonController ctrl;
 
@@ -68,6 +60,14 @@ private:
 
     double motorMaster;
     double motorRotate[3];
+
+    RCoreClient rcore;
+
+    //I2C i2c;
+    
+    //I2CLSM303Accel accel;
+    //I2CLSM303Mag mag;
+    //I2CL3GD20Gyro gyro;
 };
 
 
