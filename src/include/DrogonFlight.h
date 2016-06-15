@@ -26,12 +26,13 @@
 #include "DrogonCommon.h"
 #include "RCoreClient.h"
 #include "I2C.h"
+#include "I2CServo.h"
 #include "I2CIMU.h"
 #include "DrogonPosition.h" 
 #include "DrogonController.h"
 
 #include <iostream>
-
+#include <chrono>         // std::chrono::seconds
 
 class DrogonFlight {
 public:
@@ -40,11 +41,18 @@ public:
 
     void run();
 
-    void read_imu();
-
-    double now();
+    double to_seconds(std::chrono::high_resolution_clock::time_point now_tp);
 
 private:
+    void read_imu();
+    void read_rcore(double t);
+
+    void motors_arm();
+    void motors_disarm();
+
+    void control_update(double t);
+    void update_motors();
+
     void print_vec(FILE* f, vector3d* vec);
 
     DrogonPosition pos;
@@ -53,6 +61,9 @@ private:
     vector3d accelValues;
     vector3d gyroValues;
     vector3d magValues;
+
+    bool armed;
+    bool controlEngaged;
 
     int motorValues[4];
     double motorAdjusts[4];
@@ -63,11 +74,13 @@ private:
 
     RCoreClient rcore;
 
-    //I2C i2c;
+    I2C i2c;
     
-    //I2CLSM303Accel accel;
-    //I2CLSM303Mag mag;
-    //I2CL3GD20Gyro gyro;
+    I2CLSM303Accel accel;
+    I2CLSM303Mag mag;
+    I2CL3GD20Gyro gyro;
+
+    //I2CServo motors;
 };
 
 

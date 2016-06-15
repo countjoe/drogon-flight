@@ -22,17 +22,17 @@
 #ifndef __I2CSERVO_H__
 #define __I2CSERVO_H__
 
+#include "I2C.h"
+
 class I2CServo {
   public:
-    I2CServo(int addr);
+    I2CServo(I2C* i2c);
     
     void setFreq(float freq);
     void setMicros(int channel, int micros);
-    
-    void close();
 
   private:
-    int file;
+    I2C* i2c;
     float offPerMicro;
 };
 

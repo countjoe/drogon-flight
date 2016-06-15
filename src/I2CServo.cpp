@@ -31,6 +31,9 @@
 #include <linux/types.h>
 #include <time.h>
 
+#define MOTOR_ADDR 0x40
+#define MOTOR_FREQ 100
+
 #define SUBADR1            0x02
 #define SUBADR2            0x03
 #define SUBADR3            0x04
@@ -51,27 +54,20 @@
 
 using namespace std;
 
-I2CServo::I2CServo(int addr) {
+I2CServo::I2CServo(I2C* i2c) {
     int tmp;
-    char filename[20];  
-    snprintf(filename, 19, "/dev/i2c-%d", DEV_NUM);
-    this->file = open(filename, O_RDWR);
-    if (this->file < 0) {
-        cout << "Error opening device " << filename << ": " << this->file << endl;
-        exit(1);
-    }
     
-    tmp = ioctl(this->file, I2C_SLAVE, addr);
-    if (tmp < 0) {
-        cout << "Error setting slave addr: " << tmp << endl;
-        exit(1);
-    }
-  
-    tmp = i2c_smbus_write_byte_data(this->file, MODE1, 0x00);
+    this->i2c = i2c;
+    
+    this->i2c->set_addr(MOTOR_ADDR);
+
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, MODE1, 0x00);
     if (tmp < 0) {
         cout << "Error writing mode: " << tmp << endl;
         exit(1);
     }
+
+    setFreq(MOTOR_FREQ);
 }
 
 void I2CServo::setFreq(float freq) {
@@ -86,31 +82,33 @@ void I2CServo::setFreq(float freq) {
     prescaleval /= freq;
     prescaleval -= 1.0;
     prescale = (int) (prescaleval+0.5);
+
+    this->i2c->set_addr(MOTOR_ADDR);
   
-    cout << "Freq: " << freq << endl;
-    cout << "Prescale est: " << prescaleval << endl;
-    cout << "Prescale: " << ((int)prescale) << endl;
+    //cout << "Freq: " << freq << endl;
+    //cout << "Prescale est: " << prescaleval << endl;
+    //cout << "Prescale: " << ((int)prescale) << endl;
     
-    tmp = i2c_smbus_read_byte_data(this->file, MODE1);
+    tmp = i2c_smbus_read_byte_data(this->i2c->file, MODE1);
     if (tmp < 0) {
         cout << "Error reading mode: " << tmp << endl;
         exit(1);
     }
     oldmode = (__u8) tmp;
     newmode = (oldmode & 0x7F) | 0x10;
-    tmp = i2c_smbus_write_byte_data(this->file, MODE1, newmode);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, MODE1, newmode);
     if (tmp < 0) {
         cout << "Error writing mode: " << tmp << endl;
         exit(1);
     }
     
-    tmp = i2c_smbus_write_byte_data(this->file, PRESCALE, prescale);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, PRESCALE, prescale);
     if (tmp < 0) {
         cout << "Error writing mode: " << tmp << endl;
         exit(1);
     }
     
-    tmp = i2c_smbus_write_byte_data(this->file, MODE1, oldmode);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, MODE1, oldmode);
     if (tmp < 0) {
         cout << "Error writing mode: " << tmp << endl;
         exit(1);
@@ -120,7 +118,7 @@ void I2CServo::setFreq(float freq) {
     sleeptime.tv_nsec = 5000000;
     nanosleep(&sleeptime, NULL);
     
-    tmp = i2c_smbus_write_byte_data(this->file, MODE1, oldmode | 0x80);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, MODE1, oldmode | 0x80);
     if (tmp < 0) {
         cout << "Error writing mode: " << tmp << endl;
         exit(1);
@@ -134,33 +132,31 @@ void I2CServo::setMicros(int channel, int micros) {
     int on = 0;
     int off = (int) (micros * this->offPerMicro);
     
-    cout << "Write channel " << channel << " on=" << on << " off=" << off << endl; 
+    //cout << "Write channel " << channel << " on=" << on << " off=" << off << endl; 
+
+    this->i2c->set_addr(MOTOR_ADDR);
     
-    tmp = i2c_smbus_write_byte_data(this->file, LED0_ON_L + 4*channel, on & 0xFF);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, LED0_ON_L + 4*channel, on & 0xFF);
     if (tmp < 0) {
         cout << "Error writing ON_L: " << tmp << endl;
         exit(1);
     }
     
-    tmp = i2c_smbus_write_byte_data(this->file, LED0_ON_H + 4*channel, on >> 8);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, LED0_ON_H + 4*channel, on >> 8);
     if (tmp < 0) {
         cout << "Error writing ON_H: " << tmp << endl;
         exit(1);
     }
     
-    tmp = i2c_smbus_write_byte_data(this->file, LED0_OFF_L + 4*channel, off & 0xFF);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, LED0_OFF_L + 4*channel, off & 0xFF);
     if (tmp < 0) {
         cout << "Error writing OFF_L: " << tmp << endl;
         exit(1);
     }
     
-    tmp = i2c_smbus_write_byte_data(this->file, LED0_OFF_H + 4*channel, off >> 8);
+    tmp = i2c_smbus_write_byte_data(this->i2c->file, LED0_OFF_H + 4*channel, off >> 8);
     if (tmp < 0) {
         cout << "Error writing OFF_H: " << tmp << endl;
         exit(1);
     }
-}
-
-void I2CServo::close() {
-    ::close(this->file);
 }

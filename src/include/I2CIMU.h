@@ -22,7 +22,7 @@
 #ifndef __I2CIMU_H__
 #define __I2CIMU_H__
 
-#include <I2C.h>
+#include "I2C.h"
 #include "DrogonCommon.h"
 
 #define LSM303_ADDRESS_ACCEL          (0x32 >> 1)         // 0011001x

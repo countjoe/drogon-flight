@@ -34,6 +34,8 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#define constrain(x,a,b) min(b,max(a,x))
+
 #define INIT_KP 0.01
 #define INIT_KI 0.01
 #define INIT_KD 0.001
@@ -70,5 +72,16 @@
 #define TUNER_SCALE_MINOR 1.05
 #define TUNER_SCALE_MAJOR 1.2
 #define TUNER_SCALE_DOWN 0.8
+
+const int MIN_MOTOR_VALUE = 1000;
+const int MAX_MOTOR_VALUE = 2000;
+const double MAX_MOTOR_ADJUST = ( MAX_MOTOR_VALUE - MIN_MOTOR_VALUE ) * 0.25;
+const double MIN_MOTOR_ADJUST = -MAX_MOTOR_ADJUST;
+const double MAX_MOTOR_ZROT_ADJUST = ( MAX_MOTOR_VALUE - MIN_MOTOR_VALUE ) * 0.15;
+const double MIN_MOTOR_ZROT_ADJUST = -MAX_MOTOR_ZROT_ADJUST;
+const double MOTOR_DIFF_SCALE = 0.1;
+
+const int CONTROL_ENGAGE_THRESHOLD_HIGH = MIN_MOTOR_VALUE + (int) ( ( MAX_MOTOR_VALUE - MIN_MOTOR_VALUE ) * 0.1 );
+const int CONTROL_ENGAGE_THRESHOLD_LOW = MIN_MOTOR_VALUE + (int) ( ( MAX_MOTOR_VALUE - MIN_MOTOR_VALUE ) * 0.08 );
 
 #endif
