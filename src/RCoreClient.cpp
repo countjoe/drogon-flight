@@ -144,6 +144,18 @@ RCoreClient::RCoreClient(const char* host)
 
     uint8_t motor_types[] = { MSG_DATA_TYPE_DOUBLE };
     event_type_motor = register_event_type("flight_motor", motor_types, 1);
+
+    uint8_t pid_types[] = { MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE };
+    event_type_pid = register_event_type("flight_pid", pid_types, 3);
+
+    uint8_t log_types[] = { 
+        MSG_DATA_TYPE_DOUBLE, 
+        MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, 
+        MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, 
+        MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, MSG_DATA_TYPE_DOUBLE, 
+        MSG_DATA_TYPE_INT, MSG_DATA_TYPE_INT, MSG_DATA_TYPE_INT, MSG_DATA_TYPE_INT 
+    };
+    event_type_log = register_event_type("flight_log", log_types, 14);
 }
 
 bool RCoreClient::read()
@@ -153,8 +165,8 @@ bool RCoreClient::read()
         event_data = (uint8_t*)sub_msg.data();
         event_data_len = sub_msg.size();
 
-        printf("RECEIVED: ");
-        print_hex(event_data, event_data_len);
+        //printf("RECEIVED: ");
+        //print_hex(event_data, event_data_len);
 
         event_data_offset = 0;
         event_type = read_short(event_data, &event_data_offset);
@@ -197,6 +209,51 @@ double RCoreClient::get_motor_data()
     return read_double(event_data, &event_data_offset);
 }
 
+bool RCoreClient::is_pid_data()
+{
+    return event_type == event_type_pid;
+}
+
+vector3d* RCoreClient::get_pid_data() {
+    if (!is_pid_data()) {
+        throw std::runtime_error("Attempt to read non-pid data");
+    }
+    if (has_read_data) {
+        throw std::runtime_error("Attempt to read already-read data");
+    }
+    has_read_data = true;
+    vector3d* pid_data = (vector3d*)malloc(sizeof(vector3d));
+    pid_data->x = read_double(event_data, &event_data_offset);
+    pid_data->y = read_double(event_data, &event_data_offset);
+    pid_data->z = read_double(event_data, &event_data_offset);
+    return pid_data;
+}
+
+void RCoreClient::send_log(double t, vector3d accel, vector3d gyro, vector3d position, int* motorAdjusts )
+{
+    uint8_t cmd_buffer[255];
+    int offset = 0;
+
+    memset(cmd_buffer, 0, 255);
+
+    write_short(cmd_buffer, &offset, event_type_log);
+    write_double(cmd_buffer, &offset, t);
+    write_double(cmd_buffer, &offset, accel.x);
+    write_double(cmd_buffer, &offset, accel.y);
+    write_double(cmd_buffer, &offset, accel.z);
+    write_double(cmd_buffer, &offset, gyro.x);
+    write_double(cmd_buffer, &offset, gyro.y);
+    write_double(cmd_buffer, &offset, gyro.z);
+    write_double(cmd_buffer, &offset, position.x);
+    write_double(cmd_buffer, &offset, position.y);
+    write_double(cmd_buffer, &offset, position.z);
+    write_double(cmd_buffer, &offset, motorAdjusts[0]);
+    write_double(cmd_buffer, &offset, motorAdjusts[1]);
+    write_double(cmd_buffer, &offset, motorAdjusts[2]);
+    write_double(cmd_buffer, &offset, motorAdjusts[3]);
+
+    send(cmd_buffer, offset);
+}
 
 void RCoreClient::close()
 {
@@ -238,4 +295,16 @@ int RCoreClient::register_event_type(const char * name, uint8_t* data_types, int
     sub_socket->setsockopt(ZMQ_SUBSCRIBE, sub_filter, sizeof(short));
 
     return eventTypeId;
+}
+
+void RCoreClient::send(uint8_t* cmd_buffer, int offset)
+{
+    zmq::message_t req(offset);
+    zmq::message_t resp;
+
+    memcpy(req.data(), cmd_buffer, offset);
+
+    mgt_socket->send(req);
+
+    mgt_socket->recv(&resp);
 }

@@ -42,6 +42,7 @@ public:
     void run();
 
     double to_seconds(std::chrono::high_resolution_clock::time_point now_tp);
+    double duration_to_milliseconds(std::chrono::high_resolution_clock::duration now_tp);
 
 private:
     void read_imu();
@@ -74,11 +75,11 @@ private:
 
     RCoreClient rcore;
 
-    I2C i2c;
+    //I2C i2c;
     
-    I2CLSM303Accel accel;
-    I2CLSM303Mag mag;
-    I2CL3GD20Gyro gyro;
+    //I2CLSM303Accel accel;
+    //I2CLSM303Mag mag;
+    //I2CL3GD20Gyro gyro;
 
     //I2CServo motors;
 };

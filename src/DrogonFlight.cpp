@@ -36,7 +36,7 @@ double map_double(double x, double in_min, double in_max, double out_min, double
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost"), accel(&i2c), mag(&i2c), gyro(&i2c) //, motors(&i2c)
+DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost") //, accel(&i2c), mag(&i2c), gyro(&i2c), motors(&i2c)
 {
     zero_vector3d(&accelValues);
     zero_vector3d(&magValues);
@@ -55,25 +55,27 @@ DrogonFlight::~DrogonFlight()
 {
     motors_disarm();
     rcore.close();
-    i2c.close();
+    //i2c.close();
 }
 
 void DrogonFlight::run()
 {
-    //FILE* f;
-    //char fname[100];
+    FILE* f;
+    char fname[100];
 
-    double t = 0.0;
-
-    //sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
-    //f = fopen(fname, "w");
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point end_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point last_tp = chrono::high_resolution_clock::now();
-    chrono::milliseconds log_interval(250);
+    chrono::milliseconds log_interval(200);
     chrono::milliseconds update_interval(20);
     chrono::high_resolution_clock::duration sleep_time;
+    chrono::high_resolution_clock::duration process_time;
     chrono::milliseconds min_update_interval(2);
+
+    double t = 0; //to_seconds(now_tp);
+
+    sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
+    f = fopen(fname, "w");
 
     while (true) {
         now_tp = chrono::high_resolution_clock::now();
@@ -88,19 +90,31 @@ void DrogonFlight::run()
             control_update(t);
             update_motors();
         }
-
+        
         if ( (now_tp - last_tp) > log_interval ) {
-            printf("%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d\n", 
-                t, 
+            end_tp = chrono::high_resolution_clock::now();
+            
+            process_time = (end_tp - now_tp);
+
+            double process_millis = duration_to_milliseconds(process_time);
+
+            fprintf(f, "%f,%0.4f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d\n", 
+                t, process_millis, 
                 accelValues.x, accelValues.y, 
                 gyroValues.x, gyroValues.y, 
                 pos.position.x, pos.position.y,
                 motorValues[0], motorValues[1], motorValues[2], motorValues[3]);
+            fflush(f);
+            //rcore.send_log(t, accelValues, gyroValues, pos.position, motorValues);
+
             last_tp = chrono::high_resolution_clock::now();
         }
 
         end_tp = chrono::high_resolution_clock::now();
-        sleep_time = end_tp - now_tp;
+        
+        process_time = (end_tp - now_tp);
+        sleep_time = update_interval - process_time;
+
         if ( sleep_time < min_update_interval ) {
             sleep_time = min_update_interval;
         }
@@ -108,16 +122,14 @@ void DrogonFlight::run()
         this_thread::sleep_for(sleep_time);
     }
 
-    //fclose(f);
+    fclose(f);
 }
 
 void DrogonFlight::read_imu()
 {
-    accel.read(&accelValues);
-
-    mag.read(&magValues);
-
-    gyro.read(&gyroValues);
+    //accel.read(&accelValues);
+    //mag.read(&magValues);
+    //gyro.read(&gyroValues);
 }
 
 void DrogonFlight::read_rcore(double t)
@@ -134,7 +146,13 @@ void DrogonFlight::read_rcore(double t)
         } else if ( rcore.is_motor_data() ) {
             double motor = rcore.get_motor_data();
             motorMaster = motor;
-            printf("%f,MOTOR,%.12f\n", t, motor);
+            printf("%f,MOTOR,%.4f\n", t, motor);
+        } else if ( rcore.is_pid_data() ) {
+            vector3d* pidData = rcore.get_pid_data();
+            ctrl.pidA.set_thetas(pidData->x, pidData->y, pidData->z);
+            ctrl.pidB.set_thetas(pidData->x, pidData->y, pidData->z);
+            printf("%f,PID,%.4f,%.4f,%.4f\n", t, pidData->x, pidData->y, pidData->z);
+            free(pidData);
         }
     }
 }
@@ -247,4 +265,9 @@ void DrogonFlight::print_vec(FILE* f, vector3d* vec)
 double DrogonFlight::to_seconds(chrono::high_resolution_clock::time_point now_tp)
 {
     return now_tp.time_since_epoch().count() * chrono::high_resolution_clock::period::num / static_cast<double>(chrono::high_resolution_clock::period::den);
+}
+
+double DrogonFlight::duration_to_milliseconds(chrono::high_resolution_clock::duration now_tp)
+{
+    return now_tp.count() * 1000.0 * chrono::high_resolution_clock::period::num / static_cast<double>(chrono::high_resolution_clock::period::den);
 }

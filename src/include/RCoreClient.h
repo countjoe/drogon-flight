@@ -25,6 +25,8 @@
 #include <zmq.hpp>
 #include <map>
 
+#include "DrogonCommon.h"
+
 #define PORT_MGT    12210
 #define PORT_PUBSUB 12211
 
@@ -55,10 +57,16 @@ class RCoreClient {
     bool is_motor_data();
     double get_motor_data();
 
+    bool is_pid_data();
+    vector3d* get_pid_data();
+    
+    void send_log(double t, vector3d accel, vector3d gyro, vector3d position, int* motorAdjusts );
+
     void close();
 
   private:
     int register_event_type(const char * name, uint8_t* data_types, int ntypes);
+    void send(uint8_t* cmd_buffer, int offset);
 
     zmq::context_t* context;
 
@@ -75,6 +83,8 @@ class RCoreClient {
 
     int event_type_arm;
     int event_type_motor;
+    int event_type_pid;
+    int event_type_log;
 };
 
 #endif // __RCORECLIENT_H__

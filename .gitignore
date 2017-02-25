@@ -1,5 +1,8 @@
 *.so
 *.o
+*.class
+*.swp
+*.log
 
 /drogon-flight
 
