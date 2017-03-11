@@ -49,6 +49,17 @@ DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost") //, accel(&i2c), m
     motorRotate[0] = 0.0;
     motorRotate[1] = 0.0;
     motorRotate[2] = 0.0;
+
+    char fname[100];
+
+    chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
+    double t = to_seconds(now_tp);
+
+    sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
+    imu_f = fopen(fname, "w");
+
+    sprintf(fname, "pid.%ld.log", (long)(t*1000.0));
+    pid_f = fopen(fname, "w");
 }
 
 DrogonFlight::~DrogonFlight()
@@ -56,13 +67,12 @@ DrogonFlight::~DrogonFlight()
     motors_disarm();
     rcore.close();
     //i2c.close();
+    fclose(imu_f);
+    fclose(pid_f);
 }
 
 void DrogonFlight::run()
 {
-    FILE* f;
-    char fname[100];
-
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point end_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point last_tp = chrono::high_resolution_clock::now();
@@ -73,9 +83,6 @@ void DrogonFlight::run()
     chrono::milliseconds min_update_interval(2);
 
     double t = 0; //to_seconds(now_tp);
-
-    sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
-    f = fopen(fname, "w");
 
     while (true) {
         now_tp = chrono::high_resolution_clock::now();
@@ -92,20 +99,7 @@ void DrogonFlight::run()
         }
         
         if ( (now_tp - last_tp) > log_interval ) {
-            end_tp = chrono::high_resolution_clock::now();
-            
-            process_time = (end_tp - now_tp);
-
-            double process_millis = duration_to_milliseconds(process_time);
-
-            fprintf(f, "%f,%0.4f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d\n", 
-                t, process_millis, 
-                accelValues.x, accelValues.y, 
-                gyroValues.x, gyroValues.y, 
-                pos.position.x, pos.position.y,
-                motorValues[0], motorValues[1], motorValues[2], motorValues[3]);
-            fflush(f);
-            //rcore.send_log(t, accelValues, gyroValues, pos.position, motorValues);
+            log_imu(t);
 
             last_tp = chrono::high_resolution_clock::now();
         }
@@ -121,8 +115,6 @@ void DrogonFlight::run()
 
         this_thread::sleep_for(sleep_time);
     }
-
-    fclose(f);
 }
 
 void DrogonFlight::read_imu()
@@ -190,8 +182,8 @@ void DrogonFlight::control_update(double t)
 
     if (controlEngaged) {
         if ( target < CONTROL_ENGAGE_THRESHOLD_LOW ) {
-            //controller.tune();
-            //log_pid( );
+            ctrl.tune();
+            log_pid( t );
             ctrl.reset( t );
             //nextTuneTime = millis() + TUNER_FREQUENCY;
 
@@ -256,6 +248,33 @@ void DrogonFlight::update_motors() {
   //motors.setMicros( 2, motorValues[2] );
   //motors.setMicros( 3, motorValues[3] );
 }
+
+void DrogonFlight::log_imu(double t)
+{
+    fprintf(imu_f, "%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d\n", 
+        t, 
+        accelValues.x, accelValues.y, 
+        gyroValues.x, gyroValues.y, 
+        pos.position.x, pos.position.y,
+        motorValues[0], motorValues[1], motorValues[2], motorValues[3]);
+    fflush(imu_f);
+    //rcore.send_log(t, accelValues, gyroValues, pos.position, motorValues);
+}
+
+void DrogonFlight::log_pid(double t)
+{
+    double* thetas = ctrl.pidA.get_thetas();
+    double* adjusts = ctrl.pidATuner.get_adjusts();
+
+    fprintf(pid_f, "%f,%f,%f,%f,%f,%f,%f,%f,%f\n", 
+        t, 
+        ctrl.pidATuner.get_last_error(),
+        ctrl.pidATuner.get_best_error(),
+        adjusts[0], adjusts[1], adjusts[2],
+        thetas[0], thetas[1], thetas[2]);
+    fflush(pid_f);
+}
+
 
 void DrogonFlight::print_vec(FILE* f, vector3d* vec)
 {

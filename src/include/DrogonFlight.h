@@ -44,6 +44,9 @@ public:
     double to_seconds(std::chrono::high_resolution_clock::time_point now_tp);
     double duration_to_milliseconds(std::chrono::high_resolution_clock::duration now_tp);
 
+    void log_imu(double t);
+    void log_pid(double t);
+
 private:
     void read_imu();
     void read_rcore(double t);
@@ -53,6 +56,9 @@ private:
 
     void control_update(double t);
     void update_motors();
+
+    FILE* imu_f;
+    FILE* pid_f;
 
     void print_vec(FILE* f, vector3d* vec);
 
