@@ -36,7 +36,7 @@ double map_double(double x, double in_min, double in_max, double out_min, double
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost") //, accel(&i2c), mag(&i2c), gyro(&i2c), motors(&i2c)
+DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost"), accel(&i2c), mag(&i2c), gyro(&i2c), motors(&i2c)
 {
     zero_vector3d(&accelValues);
     zero_vector3d(&magValues);
@@ -66,7 +66,7 @@ DrogonFlight::~DrogonFlight()
 {
     motors_disarm();
     rcore.close();
-    //i2c.close();
+    i2c.close();
     fclose(imu_f);
     fclose(pid_f);
 }
@@ -76,7 +76,7 @@ void DrogonFlight::run()
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point end_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point last_tp = chrono::high_resolution_clock::now();
-    chrono::milliseconds log_interval(200);
+    chrono::milliseconds log_interval(0);
     chrono::milliseconds update_interval(20);
     chrono::high_resolution_clock::duration sleep_time;
     chrono::high_resolution_clock::duration process_time;
@@ -119,9 +119,9 @@ void DrogonFlight::run()
 
 void DrogonFlight::read_imu()
 {
-    //accel.read(&accelValues);
-    //mag.read(&magValues);
-    //gyro.read(&gyroValues);
+    accel.read(&accelValues);
+    mag.read(&magValues);
+    gyro.read(&gyroValues);
 }
 
 void DrogonFlight::read_rcore(double t)
@@ -244,7 +244,7 @@ void DrogonFlight::control_update(double t)
 
 void DrogonFlight::update_motors() {
   //motors.setMicros( 0, motorValues[0] );
-  //motors.setMicros( 1, motorValues[1] );
+  motors.setMicros( 1, motorValues[1] );
   //motors.setMicros( 2, motorValues[2] );
   //motors.setMicros( 3, motorValues[3] );
 }

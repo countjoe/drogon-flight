@@ -81,13 +81,13 @@ private:
 
     RCoreClient rcore;
 
-    //I2C i2c;
+    I2C i2c;
     
-    //I2CLSM303Accel accel;
-    //I2CLSM303Mag mag;
-    //I2CL3GD20Gyro gyro;
+    I2CLSM303Accel accel;
+    I2CLSM303Mag mag;
+    I2CL3GD20Gyro gyro;
 
-    //I2CServo motors;
+    I2CServo motors;
 };
 
 
