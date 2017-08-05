@@ -36,11 +36,12 @@ double map_double(double x, double in_min, double in_max, double out_min, double
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost"), accel(&i2c), mag(&i2c), gyro(&i2c), motors(&i2c)
+DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost"), accel(&i2c), mag(&i2c), gyro(&i2c), motors(&i2c), lidar(&i2c)
 {
     zero_vector3d(&accelValues);
     zero_vector3d(&magValues);
     zero_vector3d(&gyroValues);
+    lidarValue = -1;
 
     armed = false;
     controlEngaged = false;
@@ -55,10 +56,10 @@ DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost"), accel(&i2c), mag(
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     double t = to_seconds(now_tp);
 
-    sprintf(fname, "imu.%ld.log", (long)(t*1000.0));
+    sprintf(fname, "logs/imu.%ld.log", (long)(t*1000.0));
     imu_f = fopen(fname, "w");
 
-    sprintf(fname, "pid.%ld.log", (long)(t*1000.0));
+    sprintf(fname, "logs/pid.%ld.log", (long)(t*1000.0));
     pid_f = fopen(fname, "w");
 }
 
@@ -76,7 +77,7 @@ void DrogonFlight::run()
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point end_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point last_tp = chrono::high_resolution_clock::now();
-    chrono::milliseconds log_interval(0);
+    chrono::milliseconds log_interval(100);
     chrono::milliseconds update_interval(20);
     chrono::high_resolution_clock::duration sleep_time;
     chrono::high_resolution_clock::duration process_time;
@@ -122,6 +123,7 @@ void DrogonFlight::read_imu()
     accel.read(&accelValues);
     mag.read(&magValues);
     gyro.read(&gyroValues);
+    lidarValue = lidar.read();
 }
 
 void DrogonFlight::read_rcore(double t)
@@ -244,19 +246,20 @@ void DrogonFlight::control_update(double t)
 
 void DrogonFlight::update_motors() {
   //motors.setMicros( 0, motorValues[0] );
-  motors.setMicros( 1, motorValues[1] );
+  //motors.setMicros( 1, motorValues[1] );
   //motors.setMicros( 2, motorValues[2] );
   //motors.setMicros( 3, motorValues[3] );
 }
 
 void DrogonFlight::log_imu(double t)
 {
-    fprintf(imu_f, "%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d\n", 
+    fprintf(imu_f, "%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%d\n", 
         t, 
         accelValues.x, accelValues.y, 
         gyroValues.x, gyroValues.y, 
         pos.position.x, pos.position.y,
-        motorValues[0], motorValues[1], motorValues[2], motorValues[3]);
+        motorValues[0], motorValues[1], motorValues[2], motorValues[3],
+        lidarValue);
     fflush(imu_f);
     //rcore.send_log(t, accelValues, gyroValues, pos.position, motorValues);
 }

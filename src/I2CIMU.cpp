@@ -31,8 +31,6 @@
 #include <linux/types.h>
 #include <time.h>
 
-#define DEV_NUM 1
-
 using namespace std;
 
 I2CLSM303Accel::I2CLSM303Accel(I2C* i2c)

@@ -28,6 +28,7 @@
 #include "I2C.h"
 #include "I2CServo.h"
 #include "I2CIMU.h"
+#include "I2CLidar.h"
 #include "DrogonPosition.h" 
 #include "DrogonController.h"
 
@@ -68,6 +69,7 @@ private:
     vector3d accelValues;
     vector3d gyroValues;
     vector3d magValues;
+    int lidarValue;
 
     bool armed;
     bool controlEngaged;
@@ -88,6 +90,8 @@ private:
     I2CL3GD20Gyro gyro;
 
     I2CServo motors;
+
+    I2CLidar lidar;
 };
 
 
