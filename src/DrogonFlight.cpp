@@ -129,7 +129,7 @@ void DrogonFlight::read_rcore(double t)
     if ( rcore.read() ) {
         if ( rcore.is_arm_data() ) {
             uint8_t arm = rcore.get_arm_data();
-            if (arm == 0) {
+            if (arm <= 0) {
                 motors_disarm();
             } else {
                 motors_arm();
