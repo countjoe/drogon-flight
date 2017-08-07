@@ -56,10 +56,10 @@ DrogonFlight::DrogonFlight() : ctrl(&pos), rcore("localhost"), accel(&i2c), mag(
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     double t = to_seconds(now_tp);
 
-    sprintf(fname, "logs/imu.%ld.log", (long)(t*1000.0));
+    sprintf(fname, "logs/imu.%ld.log", (long)t);
     imu_f = fopen(fname, "w");
 
-    sprintf(fname, "logs/pid.%ld.log", (long)(t*1000.0));
+    sprintf(fname, "logs/pid.%ld.log", (long)t);
     pid_f = fopen(fname, "w");
 }
 
