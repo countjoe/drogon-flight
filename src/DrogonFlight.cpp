@@ -77,8 +77,8 @@ void DrogonFlight::run()
     chrono::high_resolution_clock::time_point now_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point end_tp = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point last_tp = chrono::high_resolution_clock::now();
-    chrono::milliseconds log_interval(100);
-    chrono::milliseconds update_interval(20);
+    chrono::milliseconds log_interval(0);
+    chrono::milliseconds update_interval(10);
     chrono::high_resolution_clock::duration sleep_time;
     chrono::high_resolution_clock::duration process_time;
     chrono::milliseconds min_update_interval(2);

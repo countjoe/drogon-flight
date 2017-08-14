@@ -34,13 +34,13 @@ DrogonPosition::DrogonPosition(void) {
 }
 
 void DrogonPosition::update( double t, vector3d* accelValues, vector3d* gyroValues ) {
-    if ( lastUpdated == 0.0 || lastUpdated >= t ) {
-        // sit this one out
-        lastUpdated = t;
-        return;
-    }
+	if ( lastUpdated == 0.0 || lastUpdated >= t ) {
+		// sit this one out
+		lastUpdated = t;
+		return;
+	}
 
-    double elapsedSeconds = ( t - lastUpdated );
+	double elapsedSeconds = ( t - lastUpdated );
 
 	double accelXUpdate = (accelValues->x * ACCEL_SCALE); // translate to robot coords
 	double accelYUpdate = (accelValues->y * ACCEL_SCALE);  // translate to robot coords
@@ -64,13 +64,13 @@ void DrogonPosition::update( double t, vector3d* accelValues, vector3d* gyroValu
 	
 	// update current position with velocity
 	position.x = calc_mean( position.x, POS_VAR_SQ_A, position.x + ( velocity.x * elapsedSeconds ), POS_VAR_SQ_V );
-    position.y = calc_mean( position.y, POS_VAR_SQ_A, position.y + ( velocity.y * elapsedSeconds ), POS_VAR_SQ_V );
+	position.y = calc_mean( position.y, POS_VAR_SQ_A, position.y + ( velocity.y * elapsedSeconds ), POS_VAR_SQ_V );
 	
-    // don't update position variance, don't want to increase
-    //varSqX = calc_var( varSqX, VEL_POS_UPDATE_VAR_SQ );
-    //varSqY = calc_var( varSqY, VEL_POS_UPDATE_VAR_SQ );
+	// don't update position variance, don't want to increase
+	//varSqX = calc_var( varSqX, VEL_POS_UPDATE_VAR_SQ );
+	//varSqY = calc_var( varSqY, VEL_POS_UPDATE_VAR_SQ );
 
-    // apply sensor position to current position
+	// apply sensor position to current position
 	position.x = calc_mean( position.x, POS_VAR_SQ_A, sensorX, POS_VAR_SQ_B );
 	position.y = calc_mean( position.y, POS_VAR_SQ_A, sensorY, POS_VAR_SQ_B );
 	
