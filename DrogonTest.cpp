@@ -34,17 +34,20 @@ double zeroPosition[] = { 0.0, 0.0, 0.0 };
 
 extern "C" {
 	void set_position( double x, double y ) {
-		position.x = x;
-		position.y = y;
+		position.position.x = x;
+		position.position.y = y;
 	}
 	void position_update( long micros, double accelValues[3], double gyroValues[3] ) {
-		position.update( micros, accelValues, gyroValues );
+		vector3d accelVec, gyroVec;
+		update_vector3d_array(&accelVec, accelValues);
+		update_vector3d_array(&gyroVec, gyroValues);
+		position.update( micros, &accelVec, &gyroVec );
 	}
 	double get_position_x(void) {
-		return position.x;
+		return position.position.x;
 	}
 	double get_position_y(void) {
-		return position.y;
+		return position.position.y;
 	}
 	void control_update(unsigned long micros) {
 		dc.control_update(micros, zeroPosition);
@@ -95,6 +98,7 @@ extern "C" {
 	}
 }
 
+/*
 
 int main(int argc, char** argv) {
 	
@@ -105,3 +109,5 @@ int main(int argc, char** argv) {
 	
 	cout << "Hello Word : " << m << " micros\n";
 }
+
+*/
